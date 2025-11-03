@@ -20,7 +20,7 @@ void ARhythmPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ARhythmPlayer::onLeftPressed);
 	PlayerInputComponent->BindAction("Up", IE_Pressed, this, &ARhythmPlayer::onUpPressed);
 	PlayerInputComponent->BindAction("Down", IE_Pressed, this, &ARhythmPlayer::onDownPressed);
-	PlayerInputComponent->BindAction("RIght", IE_Pressed, this, &ARhythmPlayer::onRightPressed);
+	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ARhythmPlayer::onRightPressed);
 }
 
 void ARhythmPlayer::onLeftPressed()
@@ -43,8 +43,4 @@ void ARhythmPlayer::onRightPressed()
 	handleNoteInput(ENoteDirection::Right);
 }
 
-void ARhythmPlayer::handleNoteInput(ENoteDirection direction)
-{
-	//judgemennt
-}
 

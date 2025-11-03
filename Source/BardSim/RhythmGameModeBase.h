@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Engine/DataTable.h"
 #include "NoteTypes.h"
+#include "Sound/SoundBase.h"
 #include "RhythmGameModeBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -14,10 +15,10 @@ struct FSongLevelData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UDataTable* songDataTable;
+	UDataTable* songDataTable = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	USoundBase* songAudio;
+	USoundBase* songAudio = nullptr;
 };
 
 

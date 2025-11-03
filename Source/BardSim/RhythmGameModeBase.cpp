@@ -21,9 +21,19 @@ void ARhythmGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FString currentLevelNameStr = UGameplayStatics::GetCurrentLevelName(this, true);
+	FName currentLevelName(*currentLevelNameStr);
+
+	//gathers all data for the song in the level
+	loadSongForLevel(currentLevelName);
+	
+	//inputs data to arrays
 	loadSongData();
-	songTime = 0.f;
-	nextNoteIndex = 0;
+
+	if (currentSongAudio)
+	{
+		UGameplayStatics::PlaySound2D(this, currentSongAudio);
+	}
 
 }
 
@@ -52,6 +62,23 @@ void ARhythmGameModeBase::registerHit(float accuracy)
 void ARhythmGameModeBase::registerMiss()
 {
 	combo = 0;
+}
+
+void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
+{
+	//if the level name is correct, load the song from that level
+	if (levelSongMap.Contains(levelName))
+	{
+		FSongLevelData& songData = levelSongMap[levelName];
+		currentSongDataTable = songData.songDataTable;
+		currentSongAudio = songData.songAudio;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No song data found for level '%s'"), *levelName.ToString());
+		currentSongDataTable = nullptr;
+		currentSongAudio = nullptr;
+	}
 }
 
 void ARhythmGameModeBase::loadSongData() //TEMP FIX WHEN TESTED AND ADD TABLES
