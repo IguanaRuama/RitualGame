@@ -1,0 +1,62 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/GameModeBase.h"
+#include "Engine/DataTable.h"
+#include "NoteTypes.h"
+#include "RhythmGameModeBase.generated.h"
+
+UCLASS()
+class BARDSIM_API ARhythmGameModeBase : public AGameModeBase
+{
+	GENERATED_BODY()
+
+public:
+	ARhythmGameModeBase();
+
+	//Can be overriden by derived classes
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	
+	//Song DataTable with note timings/directions
+	UPROPERTY(EditDefaultsOnly, Category = "Song")
+	UDataTable* currentSongDataTable;
+
+	//Note to be spawned, limited only to note actor class
+	UPROPERTY(EditDefaultsOnly, Category =  "Song")
+	TSubclassOf<class ANoteActor> noteActorClass;
+
+	//Note speed (units per sec)
+	UPROPERTY(EditDefaultsOnly, Category = "Song")
+	float noteSpeed = 400.f;
+
+	//Current score and combo
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 combo;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 score;
+
+	//Register a successful hit with accuraccy (0-1)
+	void registerHit(float accuracy);
+
+	//Register a miss (resets combo)
+	void registerMiss();
+
+protected:
+	
+	//array of note rows from DataTable
+	TArray<FNoteData*> noteDataArray;
+
+	int32 nextNoteIndex;
+	float songTime;
+
+	//Load note data from DataTable
+	void loadSongData();
+
+	//Spawn note actor for noteData
+	void spawnNote(const FNoteData& note);
+
+};
