@@ -4,6 +4,8 @@
 #include "RhythmGameModeBase.h"
 #include "NoteActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/DataTable.h"
+#include "Sound/SoundBase.h"
 
 ARhythmGameModeBase::ARhythmGameModeBase()
 {

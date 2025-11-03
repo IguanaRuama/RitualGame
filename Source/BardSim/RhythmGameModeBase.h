@@ -8,6 +8,19 @@
 #include "NoteTypes.h"
 #include "RhythmGameModeBase.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSongLevelData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UDataTable* songDataTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USoundBase* songAudio;
+};
+
+
 UCLASS()
 class BARDSIM_API ARhythmGameModeBase : public AGameModeBase
 {
@@ -19,11 +32,11 @@ public:
 	//Can be overriden by derived classes
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	
-	//Song DataTable with note timings/directions
-	UPROPERTY(EditDefaultsOnly, Category = "Song")
-	UDataTable* currentSongDataTable;
 
+	//Map level names (FName) to song data
+	UPROPERTY(EditDefaultsOnly, Category = "Song")
+	TMap<FName, FSongLevelData> levelSongMap;
+	
 	//Note to be spawned, limited only to note actor class
 	UPROPERTY(EditDefaultsOnly, Category =  "Song")
 	TSubclassOf<class ANoteActor> noteActorClass;
@@ -46,6 +59,15 @@ public:
 	void registerMiss();
 
 protected:
+
+	//Song DataTable with note timings/directions
+	UPROPERTY(EditDefaultsOnly, Category = "Song")
+	UDataTable* currentSongDataTable;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
+	USoundBase* currentSongAudio;
+
+	void loadSongForLevel(const FName& levelName);
 	
 	//array of note rows from DataTable
 	TArray<FNoteData*> noteDataArray;
