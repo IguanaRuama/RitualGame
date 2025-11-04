@@ -9,7 +9,7 @@
 #include "RhythmPlayer.generated.h"
 
 UCLASS()
-class BARDSIM_API ARhythmPlayer : public ACharacter
+class BARDSIM_API ARhythmPlayer : public ACharacter, public INoteInputHandling
 {
 	GENERATED_BODY()
 

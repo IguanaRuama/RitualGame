@@ -7,6 +7,7 @@
 #include "Engine/DataTable.h"
 #include "NoteTypes.h"
 #include "Sound/SoundBase.h"
+#include "NoteInputHandling.h"
 #include "RhythmGameModeBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -23,7 +24,7 @@ struct FSongLevelData
 
 
 UCLASS()
-class BARDSIM_API ARhythmGameModeBase : public AGameModeBase
+class BARDSIM_API ARhythmGameModeBase : public AGameModeBase, public INoteInputHandling
 {
 	GENERATED_BODY()
 
@@ -33,6 +34,15 @@ public:
 	//Can be overriden by derived classes
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	
+	void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime);
+	float getSongTime_Implementation() const;
+
+	//Register a successful hit with accuraccy (0-1)
+	void registerHit(float accuracy);
+
+	//Register a miss (resets combo)
+	void registerMiss();
 
 	//Map level names (FName) to song data
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
@@ -53,11 +63,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 score;
 
-	//Register a successful hit with accuraccy (0-1)
-	void registerHit(float accuracy);
-
-	//Register a miss (resets combo)
-	void registerMiss();
+	int32 nextNoteIndex;
+	
+	float songTime;
 
 protected:
 
@@ -72,9 +80,6 @@ protected:
 	
 	//array of note rows from DataTable
 	TArray<FNoteData*> noteDataArray;
-
-	int32 nextNoteIndex;
-	float songTime;
 
 	//Load note data from DataTable
 	void loadSongData();

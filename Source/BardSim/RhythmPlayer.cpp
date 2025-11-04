@@ -43,4 +43,20 @@ void ARhythmPlayer::onRightPressed()
 	handleNoteInput(ENoteDirection::Right);
 }
 
+void ARhythmPlayer::handleNoteInput(ENoteDirection direction)
+{
+	UWorld* world = GetWorld();
+	if (!world)
+	{
+		return;
+	}
+
+	//Getting current gamemode and checking if it has note input interface
+	AGameModeBase* gameMode = UGameplayStatics::GetGameMode(world);
+	if (gameMode && gameMode->GetClass()->ImplementsInterface(UNoteInputHandling::StaticClass()))
+	{
+		float inputTime = INoteInputHandling::Execute_getSongTime(gameMode);
+	}
+}
+
 

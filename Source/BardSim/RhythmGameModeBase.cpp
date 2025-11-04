@@ -26,7 +26,7 @@ void ARhythmGameModeBase::BeginPlay()
 
 	//gathers all data for the song in the level
 	loadSongForLevel(currentLevelName);
-	
+
 	//inputs data to arrays
 	loadSongData();
 
@@ -34,7 +34,6 @@ void ARhythmGameModeBase::BeginPlay()
 	{
 		UGameplayStatics::PlaySound2D(this, currentSongAudio);
 	}
-
 }
 
 void ARhythmGameModeBase::Tick(float DeltaTime)
@@ -49,6 +48,78 @@ void ARhythmGameModeBase::Tick(float DeltaTime)
 	{
 		spawnNote(*noteDataArray[nextNoteIndex]);
 	}
+}
+
+void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime)
+{
+	//200ms timing window
+	float timingWindow = 0.2f;
+
+	//If there is no upcoming notes, exit
+	if (!noteDataArray.IsValidIndex(nextNoteIndex))
+	{
+		registerMiss();
+		return;
+	}
+
+	//Skip notes missed
+	while (noteDataArray.IsValidIndex(nextNoteIndex))
+	{
+		FNoteData* currentNote = noteDataArray[nextNoteIndex];
+		if (!currentNote)
+		{
+			++nextNoteIndex;
+			continue;
+		}
+
+		float timeDiff = inputTime - currentNote->time;
+
+		//if input is earlier than the window, register miss
+		if (timeDiff < (timeDiff - timingWindow))
+		{
+			registerMiss();
+			return;
+		}
+
+		//If timeDiff is neg, turns positive and checks if its within timing window 
+		if ((FMath::Abs(timeDiff) <= timingWindow))
+		{
+			//checks direction match
+			if (currentNote->direction == inputDirection)
+			{
+				//0 perfect, 1 imperfect
+				float accuracy = (FMath::Abs(timeDiff)) / timingWindow;
+
+				registerHit(accuracy);
+				++nextNoteIndex;
+				return;
+			}
+
+			//Wrong direction but within timing window = missed note, but not incremented
+			else
+			{
+				registerMiss();
+				return;
+			}
+		}
+
+		//If input later than timing window = missed note, then incremented
+		if (timeDiff > timingWindow)
+		{
+			registerMiss();
+			++nextNoteIndex;
+			continue;
+		}
+	}
+
+	//No notes macthed / falls out of loop
+	registerMiss();
+
+}
+
+float ARhythmGameModeBase::getSongTime_Implementation() const
+{
+	return songTime;
 }
 
 void ARhythmGameModeBase::registerHit(float accuracy)
