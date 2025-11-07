@@ -23,6 +23,18 @@ void ARhythmPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ARhythmPlayer::onRightPressed);
 }
 
+void ARhythmPlayer::handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime)
+{
+	handleNoteInput(inputDirection);
+
+	UE_LOG(LogTemp, Log, TEXT("Player received note input: %d at time %f"), (int32)inputDirection, inputTime);
+}
+
+float ARhythmPlayer::getSongTime_Implementation() const
+{
+	return 0.0f;
+}
+
 void ARhythmPlayer::onLeftPressed()
 {
 	handleNoteInput(ENoteDirection::Left);

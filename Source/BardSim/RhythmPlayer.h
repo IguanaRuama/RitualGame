@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UObject/ScriptInterface.h"
 #include "NoteTypes.h"
+#include "NoteInputHandling.h"
 #include "RhythmPlayer.generated.h"
 
 UCLASS()
@@ -17,9 +18,12 @@ public:
 	// Sets default values for this character's properties
 	ARhythmPlayer();
 
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime) override;
+	virtual float getSongTime_Implementation() const override;
+	
 
 private:	
 

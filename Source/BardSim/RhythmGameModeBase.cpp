@@ -52,6 +52,8 @@ void ARhythmGameModeBase::Tick(float DeltaTime)
 
 void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime)
 {
+	UE_LOG(LogTemp, Log, TEXT("GameMode received note input: %d at time %f"), (int32)inputDirection, inputTime);
+
 	//200ms timing window
 	float timingWindow = 0.2f;
 

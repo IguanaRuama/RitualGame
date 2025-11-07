@@ -35,8 +35,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	
-	void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime);
-	float getSongTime_Implementation() const;
+	virtual void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime) override;
+	virtual float getSongTime_Implementation() const override;
 
 	//Register a successful hit with accuraccy (0-1)
 	void registerHit(float accuracy);
