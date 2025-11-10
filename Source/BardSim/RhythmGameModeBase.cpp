@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DataTable.h"
 #include "Sound/SoundBase.h"
+#include "SongDataAsset.h"
 
 ARhythmGameModeBase::ARhythmGameModeBase()
 {
@@ -150,13 +151,25 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 	//if the level name is correct, load the song from that level
 	if (levelSongMap.Contains(levelName))
 	{
-		FSongLevelData& songData = levelSongMap[levelName];
-		currentSongDataTable = songData.songDataTable;
-		currentSongAudio = songData.songAudio;
+		USongDataAsset* songDataAsset = levelSongMap[levelName];
+		if (songDataAsset)
+		{
+			currentSongDataAsset = songDataAsset;
+			currentSongDataTable = songDataAsset->noteDataTable;
+			currentSongAudio = songDataAsset->songAudio;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SongDataAsset is null for level '%s'"), *levelName.ToString());
+			currentSongDataAsset = nullptr;
+			currentSongDataTable = nullptr;
+			currentSongAudio = nullptr;
+		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No song data found for level '%s'"), *levelName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("No song data asset found for level '%s'"), *levelName.ToString());
+		currentSongDataAsset = nullptr;
 		currentSongDataTable = nullptr;
 		currentSongAudio = nullptr;
 	}

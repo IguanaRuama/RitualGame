@@ -9,6 +9,7 @@
 #include "Sound/SoundBase.h"
 #include "NoteInputHandling.h"
 #include "NoteSpawnManager.h"
+#include "SongDataAsset.h"
 #include "RhythmGameModeBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -41,7 +42,7 @@ public:
 
 	//Map level names (FName) to song data
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
-	TMap<FName, FSongLevelData> levelSongMap;
+	TMap<FName, USongDataAsset*> levelSongMap;
 	
 	//Note to be spawned, limited only to note actor class
 	UPROPERTY(EditDefaultsOnly, Category =  "Song")
@@ -66,6 +67,10 @@ public:
 	float songTime;
 
 protected:
+
+	//All data relating to current song
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song")
+	USongDataAsset* currentSongDataAsset;
 
 	//Song DataTable with note timings/directions
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
