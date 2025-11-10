@@ -46,7 +46,7 @@ void ARhythmGameModeBase::Tick(float DeltaTime)
 	//then spawns note
 	for (nextNoteIndex; noteDataArray.IsValidIndex(nextNoteIndex) && noteDataArray[nextNoteIndex]->time <= songTime; ++nextNoteIndex)
 	{
-		noteSpawned(*noteDataArray[nextNoteIndex]);
+		spawnNote(*noteDataArray[nextNoteIndex]);
 	}
 }
 
@@ -137,14 +137,6 @@ void ARhythmGameModeBase::registerMiss()
 	combo = 0;
 }
 
-void ARhythmGameModeBase::noteSpawned(const FNoteData& note)
-{
-	if (noteSpawnManager)
-	{
-		noteSpawnManager->spawnNote(note, noteActorClass, noteSpeed);
-	}
-}
-
 void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 {
 	//if the level name is correct, load the song from that level
@@ -177,5 +169,31 @@ void ARhythmGameModeBase::loadSongData() //TEMP FIX WHEN TESTED AND ADD TABLES
 			{
 				return A.time < B.time;
 			});
+	}
+}
+
+void ARhythmGameModeBase::spawnNote(const FNoteData& note)
+{
+	if (!noteActorClass)
+		return;
+
+	UWorld* world = GetWorld();
+	if (!world)
+		return;
+
+	//gets lane/location to spawn based on the note direction
+	FVector spawnLocation = ANoteActor::getSpawnLocation(note.direction); 
+	
+	//controlls spawning behaviour, FLESH OUT LATER
+	FActorSpawnParameters params;
+
+	//spawns instance of ANoteActor at the location, no rotation and with given params
+	//spawn returns a pointer
+	ANoteActor* noteActor = world->SpawnActor<ANoteActor>(noteActorClass, spawnLocation, FRotator::ZeroRotator, params);
+	
+	//if previous succeeds, spawned note is initiallised
+	if (noteActor)
+	{
+		noteActor->initNote(note.direction, noteSpeed);
 	}
 }

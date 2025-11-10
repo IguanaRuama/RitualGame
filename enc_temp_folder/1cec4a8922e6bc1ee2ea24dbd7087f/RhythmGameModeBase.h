@@ -8,7 +8,6 @@
 #include "NoteTypes.h"
 #include "Sound/SoundBase.h"
 #include "NoteInputHandling.h"
-#include "NoteSpawnManager.h"
 #include "RhythmGameModeBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -39,6 +38,12 @@ public:
 	virtual void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime) override;
 	virtual float getSongTime_Implementation() const override;
 
+	//Register a successful hit with accuraccy (0-1)
+	void registerHit(float accuracy);
+
+	//Register a miss (resets combo)
+	void registerMiss();
+
 	//Map level names (FName) to song data
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
 	TMap<FName, FSongLevelData> levelSongMap;
@@ -50,9 +55,6 @@ public:
 	//Note speed (units per sec)
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
 	float noteSpeed = 400.f;
-
-	UPROPERTY(VisibleAnywhere)
-	ANoteSpawnManager* noteSpawnManager;
 
 	//Current score and combo
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
@@ -82,14 +84,7 @@ protected:
 	//Load note data from DataTable
 	void loadSongData();
 
-private:
-	//Register a successful hit with accuraccy (0-1)
-	void registerHit(float accuracy);
-
-	//Register a miss (resets combo)
-	void registerMiss();
-
-	//Note spawned triggers spawn note
-	void noteSpawned(const FNoteData& note);
+	//Spawn note actor for noteData
+	void spawnNote(const FNoteData& note);
 
 };
