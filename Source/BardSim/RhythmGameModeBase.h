@@ -79,10 +79,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	USoundBase* currentSongAudio;
 
-	void loadSongForLevel(const FName& levelName);
-	
 	//array of note rows from DataTable
 	TArray<FNoteData*> noteDataArray;
+
+	void loadSongForLevel(const FName& levelName);
+
+	ANoteSpawnManager* findNoteSpawnManager();
 
 	//Load note data from DataTable
 	void loadSongData();

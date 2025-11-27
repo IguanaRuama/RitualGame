@@ -4,6 +4,7 @@
 #include "RhythmGameModeBase.h"
 #include "NoteActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
 #include "Engine/DataTable.h"
 #include "Sound/SoundBase.h"
 #include "SongDataAsset.h"
@@ -21,6 +22,12 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 void ARhythmGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	noteSpawnManager = findNoteSpawnManager();
+
+	UE_LOG(LogTemp, Log, TEXT("NoteSpawnManager assigned: %s"), noteSpawnManager ? *noteSpawnManager->GetName() : TEXT("None"));
+
+	UE_LOG(LogTemp, Log, TEXT("WORKING"));
 
 	FString currentLevelNameStr = UGameplayStatics::GetCurrentLevelName(this, true);
 	FName currentLevelName(*currentLevelNameStr);
@@ -173,6 +180,28 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 		currentSongDataTable = nullptr;
 		currentSongAudio = nullptr;
 	}
+}
+
+ANoteSpawnManager* ARhythmGameModeBase::findNoteSpawnManager()
+{
+
+	UWorld* world = GetWorld();
+
+	if (!world)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Manager not found."));
+		return nullptr;
+	}
+
+	for (TActorIterator<ANoteSpawnManager> It(GetWorld()); It; ++It)
+	{
+		
+		UE_LOG(LogTemp, Log, TEXT("Spawn manager found and assigned"));
+		return *It;
+		
+		break;
+	}
+	return nullptr;
 }
 
 void ARhythmGameModeBase::loadSongData() //TEMP FIX WHEN TESTED AND ADD TABLES

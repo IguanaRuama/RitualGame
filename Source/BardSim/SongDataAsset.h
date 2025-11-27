@@ -27,5 +27,5 @@ public:
 
 	//potential use for animations
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
-	float BPM = 120.f;
+	float BPM = 0;
 };

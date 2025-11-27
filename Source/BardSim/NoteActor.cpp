@@ -5,11 +5,11 @@
 
 const TMap<ENoteDirection, FVector> ANoteActor::spawnLocations =
 {
-	{ENoteDirection::Left, FVector(-300.f, 0.f, 1000.f)},
-	{ENoteDirection::Up, FVector(-100.f, 0.f, 1000.f)},
-	{ENoteDirection::Down, FVector(100.f, 0.f, 1000.f)},
-	{ENoteDirection::Right, FVector(300.f, 0.f, 1000.f)}
-};
+	{ENoteDirection::Left, FVector(-230.f,-200.f, 0.f)}, //fix xyz
+	{ENoteDirection::Up, FVector(-80.f, -200.f, 0.f)},
+	{ENoteDirection::Down, FVector(70.f, 200.f, 0.f)},
+	{ENoteDirection::Right, FVector(220.f, -200.f, 0.f)}
+}; 
 
 
 // Sets default values
