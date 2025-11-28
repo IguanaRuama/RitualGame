@@ -59,6 +59,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 combo;
 
+	//Distance note has to travel to hit point
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
+	float noteTravelDistance = 400.f;
+
+	//Time the note must spawn to have room to lead down screen
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
+	float leadTime = noteTravelDistance / noteSpeed;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 score;
 
@@ -84,12 +92,16 @@ protected:
 
 	void loadSongForLevel(const FName& levelName);
 
+	//Finds spawn manager to reference
 	ANoteSpawnManager* findNoteSpawnManager();
+
+	ACameraActor* findCamera();
 
 	//Load note data from DataTable
 	void loadSongData();
 
 private:
+
 	//Register a successful hit with accuraccy (0-1)
 	void registerHit(float accuracy);
 

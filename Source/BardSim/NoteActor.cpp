@@ -5,9 +5,9 @@
 
 const TMap<ENoteDirection, FVector> ANoteActor::spawnLocations =
 {
-	{ENoteDirection::Left, FVector(-230.f,-200.f, 0.f)}, //fix xyz
+	{ENoteDirection::Left, FVector(-230.f,-200.f, 0.f)}, 
 	{ENoteDirection::Up, FVector(-80.f, -200.f, 0.f)},
-	{ENoteDirection::Down, FVector(70.f, 200.f, 0.f)},
+	{ENoteDirection::Down, FVector(70.f, -200.f, 0.f)},
 	{ENoteDirection::Right, FVector(220.f, -200.f, 0.f)}
 }; 
 
@@ -56,9 +56,9 @@ void ANoteActor::Tick(float DeltaTime) //UPDATE WITH STUFF FROM YOUTUBE VID FOR 
 {
 	Super::Tick(DeltaTime);
 
-	//moves note downwards
+	//moves note downwards on Y axis
 	FVector location = GetActorLocation();
-	location.Z -= speed * DeltaTime;
+	location.Y += speed * DeltaTime;
 
 	SetActorLocation(location);
 

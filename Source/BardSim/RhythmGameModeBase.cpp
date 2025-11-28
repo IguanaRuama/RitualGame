@@ -8,6 +8,7 @@
 #include "Engine/DataTable.h"
 #include "Sound/SoundBase.h"
 #include "SongDataAsset.h"
+#include "Camera/CameraActor.h"
 
 ARhythmGameModeBase::ARhythmGameModeBase()
 {
@@ -22,6 +23,13 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 void ARhythmGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ACameraActor* cameraActor = findCamera();
+	APlayerController* playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (playerController && cameraActor)
+	{
+		playerController->SetViewTarget(cameraActor);
+	}
 
 	noteSpawnManager = findNoteSpawnManager();
 
@@ -50,9 +58,9 @@ void ARhythmGameModeBase::Tick(float DeltaTime)
 
 	songTime += DeltaTime;
 
-	//Checks next note exists and that the time matches, increments index to point to next note if yes
+	//Checks next note exists and that the current time and spawn time matches, increments index to point to next note if yes
 	//then spawns note
-	for (nextNoteIndex; noteDataArray.IsValidIndex(nextNoteIndex) && noteDataArray[nextNoteIndex]->time <= songTime; ++nextNoteIndex)
+	for (nextNoteIndex; noteDataArray.IsValidIndex(nextNoteIndex) && (noteDataArray[nextNoteIndex]->time - leadTime) <= songTime; ++nextNoteIndex)
 	{
 		noteSpawned(*noteDataArray[nextNoteIndex]);
 	}
@@ -193,14 +201,30 @@ ANoteSpawnManager* ARhythmGameModeBase::findNoteSpawnManager()
 		return nullptr;
 	}
 
-	for (TActorIterator<ANoteSpawnManager> It(GetWorld()); It; ++It)
+	//makes iterator that loops through spawn managers and creates a pointer to the current actor
+	//only loops once as only one manager is spawned
+	for (TActorIterator<ANoteSpawnManager> spawnIt(GetWorld()); spawnIt; ++spawnIt)
 	{
 		
-		UE_LOG(LogTemp, Log, TEXT("Spawn manager found and assigned"));
-		return *It;
+		UE_LOG(LogTemp, Log, TEXT("Spawn manager found"));
+		return *spawnIt;
 		
 		break;
 	}
+	return nullptr;
+}
+
+//makes iterator that loops through cameras and creates a pointer to the current camera
+//only loops once as only one camera is spawned
+ACameraActor* ARhythmGameModeBase::findCamera()
+{
+	for (TActorIterator<ACameraActor> cameraIt(GetWorld()); cameraIt; ++cameraIt)
+	{
+
+		UE_LOG(LogTemp, Log, TEXT("Camera found"));
+		return *cameraIt;
+	}
+
 	return nullptr;
 }
 
