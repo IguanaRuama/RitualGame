@@ -33,18 +33,22 @@ void ARhythmGameModeBase::BeginPlay()
 
 	noteSpawnManager = findNoteSpawnManager();
 
+	if (noteSpawnManager && currentSongDataTable)
+	{
+		noteSpawnManager->initialise(currentSongDataTable, noteActorClass, noteSpeed, leadTime);
+	}
+
+	if (currentSongAudio)
+	{
+		UGameplayStatics::PlaySound2D(this, currentSongAudio);
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("NoteSpawnManager assigned: %s"), noteSpawnManager ? *noteSpawnManager->GetName() : TEXT("None"));
 
 	UE_LOG(LogTemp, Log, TEXT("WORKING"));
 
 	FString currentLevelNameStr = UGameplayStatics::GetCurrentLevelName(this, true);
 	FName currentLevelName(*currentLevelNameStr);
-
-	//gathers all data for the song in the level
-	loadSongForLevel(currentLevelName);
-
-	//inputs data to arrays
-	loadSongData();
 
 	if (currentSongAudio)
 	{
@@ -58,11 +62,9 @@ void ARhythmGameModeBase::Tick(float DeltaTime)
 
 	songTime += DeltaTime;
 
-	//Checks next note exists and that the current time and spawn time matches, increments index to point to next note if yes
-	//then spawns note
-	for (nextNoteIndex; noteDataArray.IsValidIndex(nextNoteIndex) && (noteDataArray[nextNoteIndex]->time - leadTime) <= songTime; ++nextNoteIndex)
+	if (noteSpawnManager)
 	{
-		noteSpawned(*noteDataArray[nextNoteIndex]);
+		noteSpawnManager->processNoteSpawning(songTime);
 	}
 }
 
@@ -153,11 +155,13 @@ void ARhythmGameModeBase::registerMiss()
 	combo = 0;
 }
 
-void ARhythmGameModeBase::noteSpawned(const FNoteData& note)
+void ARhythmGameModeBase::startSong()
 {
-	if (noteSpawnManager)
+	songTime = 0.F;
+
+	if (noteSpawnManager && noteSpawnManager->noteDataTable)
 	{
-		noteSpawnManager->spawnNote(note, noteActorClass, noteSpeed);
+		noteSpawnManager->initialise(noteSpawnManager->noteDataTable, noteActorClass, noteSpeed, leadTime);
 	}
 }
 

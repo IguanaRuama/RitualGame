@@ -8,34 +8,71 @@
 // Sets default values
 ANoteSpawnManager::ANoteSpawnManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-void ANoteSpawnManager::spawnNote(const FNoteData& note, TSubclassOf<class ANoteActor> noteActorClass, float noteSpeed)
+void ANoteSpawnManager::initialise(UDataTable* inNoteDataTable, TSubclassOf<ANoteActor> inNoteActorClass, float inSpeed, float inLeadTime)
 {
-	if (!noteActorClass)
-		return;
+	noteActorClass = inNoteActorClass;
+	noteSpeed = inSpeed;
+	leadTime = inLeadTime;
+	nextNoteIndex = 0;
 
-	UWorld* world = GetWorld();
-	if (!world)
-		return;
+	loadSongData(inNoteDataTable);
+}
 
-	//gets lane/location to spawn based on the note direction
-	FVector spawnLocation = ANoteActor::getSpawnLocation(note.direction);
-
-	//controlls spawning behaviour, FLESH OUT LATER
-	FActorSpawnParameters params;
-
-	//spawns instance of ANoteActor at the location, no rotation and with given params
-	//spawn returns a pointer
-	ANoteActor* noteActor = world->SpawnActor<ANoteActor>(noteActorClass, spawnLocation, FRotator::ZeroRotator, params);
-
-	//if previous succeeds, spawned note is initiallised
-	if (noteActor)
+void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
+{
+	if (noteDataArray.Num() == 0 || !noteActorClass)
 	{
-		noteActor->initNote(note.direction, noteSpeed);
+		return;
+	}
+
+	//Binary search boundaries
+	int32 low = nextNoteIndex;
+	int32 high = noteDataArray.Num() - 1;
+	int32 spawnUpToIndex = nextNoteIndex - 1;
+
+	while (low <= high)
+	{
+		int32 mid = (low + high) / 2;
+		float spawnTime = noteDataArray[mid]->time - leadTime;
+
+		if (spawnTime <= currentSongTime)
+		{
+			spawnUpToIndex = mid;
+			low = mid + 1;
+		}
+		else
+		{
+			high = mid - 1;
+		}
+	}
+
+	//Spawn notes sequentially from nextNoteIndex up to spawnUpToIndex
+
+	for (; nextNoteIndex <= spawnUpToIndex; ++nextNoteIndex)
+	{
+		spawnNote(*noteDataArray[nextNoteIndex]);
 	}
 }
 
+void ANoteSpawnManager::loadSongData(UDataTable* inNoteDataTable)
+{
+}
+
+void ANoteSpawnManager::spawnNote(const FNoteData& note)
+{
+	if (!cachedWorld || !noteActorClass)
+	{
+		return;
+	}
+
+	FVector spawnLocation = ANoteActor::getSpawnLocation(note.direction);
+	ANoteActor* spawnedNote = cachedWorld->SpawnActor<ANoteActor>(noteActorClass, spawnLocation, FRotator::ZeroRotator);
+
+	if (spawnedNote)
+	{
+		spawnedNote->initNote(note.direction, noteSpeed);
+	}
+}

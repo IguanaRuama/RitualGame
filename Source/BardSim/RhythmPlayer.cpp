@@ -67,8 +67,17 @@ void ARhythmPlayer::handleNoteInput(ENoteDirection direction)
 	AGameModeBase* gameMode = UGameplayStatics::GetGameMode(world);
 	if (gameMode && gameMode->GetClass()->ImplementsInterface(UNoteInputHandling::StaticClass()))
 	{
+		//Retrieve current song time from GameMode
 		float inputTime = INoteInputHandling::Execute_getSongTime(gameMode);
+
+		//Forward direction and InputTime to GameMode
+		INoteInputHandling::Execute_handleNoteInput(gameMode, direction, inputTime);
+
+		//ERROR CHECKING
+		UE_LOG(LogTemp, Log, TEXT("Forwared input direction %d with time %f to GameMode"), (int32)direction, inputTime);
 	}
+
+
 }
 
 

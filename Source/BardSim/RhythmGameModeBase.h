@@ -52,9 +52,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
 	float noteSpeed = 400.f;
 
-	UPROPERTY(VisibleAnywhere)
-	ANoteSpawnManager* noteSpawnManager;
-
 	//Current score and combo
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 combo;
@@ -73,6 +70,12 @@ public:
 	int32 nextNoteIndex;
 	
 	float songTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song")
+	class ANoteSpawnManager* noteSpawnManager;
+
+	UFUNCTION(BlueprintCallable, Category = "Song")
+	void startSong();
 
 protected:
 
