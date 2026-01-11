@@ -35,7 +35,6 @@ public:
 
 	//Can be overriden by derived classes
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
 	
 	virtual void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime) override;
 	virtual float getSongTime_Implementation() const override;
@@ -90,18 +89,24 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	USoundBase* currentSongAudio;
 
-	//array of note rows from DataTable
-	TArray<FNoteData*> noteDataArray;
-
 	void loadSongForLevel(const FName& levelName);
 
 	//Finds spawn manager to reference
 	ANoteSpawnManager* findNoteSpawnManager();
 
+	//Camera to be assigned
 	ACameraActor* findCamera();
 
-	//Load note data from DataTable
-	void loadSongData();
+	//timer for spawning notes
+	FTimerHandle noteSpawnTimerHandle;
+
+	//controls timer
+	void processNoteSpawningTimer();
+
+	//starts timer
+	void startNoteSpawningTimer(float interval);
+
+	void stopNoteSpawningTimer();
 
 private:
 
@@ -110,8 +115,5 @@ private:
 
 	//Register a miss (resets combo)
 	void registerMiss();
-
-	//Note spawned triggers spawn note
-	void noteSpawned(const FNoteData& note);
 
 };

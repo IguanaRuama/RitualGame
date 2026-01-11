@@ -30,6 +30,18 @@ public:
 	//Get fixed spawn location for each lane
 	static FVector getSpawnLocation(ENoteDirection direction);
 
+	//init note with direction and speed
+	UFUNCTION(BlueprintCallable)
+	virtual void initNote(ENoteDirection direction, float speed);
+
+	//resets note state and hides for pooling
+	UFUNCTION(BlueprintCallable)
+	virtual void resetNote();
+
+	//Returns true if note is in play
+	UFUNCTION(BlueprintCallable)
+	bool isActive();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -12,7 +12,7 @@
 
 ARhythmGameModeBase::ARhythmGameModeBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	combo = 0;
 	score = 0;
 	nextNoteIndex = 0;
@@ -33,14 +33,9 @@ void ARhythmGameModeBase::BeginPlay()
 
 	noteSpawnManager = findNoteSpawnManager();
 
-	if (noteSpawnManager && currentSongDataTable)
+	if (noteSpawnManager && noteSpawnManager->noteDataTable)
 	{
-		noteSpawnManager->initialise(currentSongDataTable, noteActorClass, noteSpeed, leadTime);
-	}
-
-	if (currentSongAudio)
-	{
-		UGameplayStatics::PlaySound2D(this, currentSongAudio);
+		noteSpawnManager->initialise(noteSpawnManager->noteDataTable, noteActorClass, noteSpeed, leadTime);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("NoteSpawnManager assigned: %s"), noteSpawnManager ? *noteSpawnManager->GetName() : TEXT("None"));
@@ -53,27 +48,25 @@ void ARhythmGameModeBase::BeginPlay()
 	if (currentSongAudio)
 	{
 		UGameplayStatics::PlaySound2D(this, currentSongAudio);
-	}
-}
 
-void ARhythmGameModeBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	songTime += DeltaTime;
-
-	if (noteSpawnManager)
-	{
-		noteSpawnManager->processNoteSpawning(songTime);
+		startNoteSpawningTimer(0.01f);
 	}
 }
 
 void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime)
 {
+	//If no manager, no hit is registered
+	if (!noteSpawnManager)
+	{
+		registerMiss();
+		return;
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("GameMode received note input: %d at time %f"), (int32)inputDirection, inputTime);
 
 	//200ms timing window
 	float timingWindow = 0.2f;
+	TArray<FNoteData*>& noteDataArray = noteSpawnManager->getNoteDataArray();
 
 	//If there is no upcoming notes, exit
 	if (!noteDataArray.IsValidIndex(nextNoteIndex))
@@ -95,7 +88,7 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 		float timeDiff = inputTime - currentNote->time;
 
 		//if input is earlier than the window, register miss
-		if (timeDiff < (timeDiff - timingWindow))
+		if (timeDiff < -timingWindow)
 		{
 			registerMiss();
 			return;
@@ -232,20 +225,23 @@ ACameraActor* ARhythmGameModeBase::findCamera()
 	return nullptr;
 }
 
-void ARhythmGameModeBase::loadSongData() //TEMP FIX WHEN TESTED AND ADD TABLES
+void ARhythmGameModeBase::processNoteSpawningTimer()
 {
-	noteDataArray.Empty();
-	if (currentSongDataTable) //checks if current song has assigned data
+	if (noteSpawnManager)
 	{
-		static const FString contextString(TEXT("Song Data")); //ERROR CHECKING
-
-		//retrieves all note data from table and inputs to the array, displays song data if error occurs
-		currentSongDataTable->GetAllRows<FNoteData>(contextString, noteDataArray); 
-
-		//sorts notes by time in array
-		noteDataArray.Sort([](const FNoteData& A, const FNoteData& B)
-			{
-				return A.time < B.time;
-			});
+		float currentSongTime = songTime;
+		noteSpawnManager->processNoteSpawning(currentSongTime);
 	}
 }
+
+void ARhythmGameModeBase::startNoteSpawningTimer(float interval)
+{
+	GetWorldTimerManager().SetTimer(noteSpawnTimerHandle, this, &ARhythmGameModeBase::processNoteSpawningTimer, interval, true);
+
+}
+
+void ARhythmGameModeBase::stopNoteSpawningTimer()
+{
+	GetWorldTimerManager().ClearTimer(noteSpawnTimerHandle);
+}
+

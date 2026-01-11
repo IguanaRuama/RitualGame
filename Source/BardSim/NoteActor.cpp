@@ -35,6 +35,11 @@ void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed)
 	SetActorLocation(getSpawnLocation(direction));
 }
 
+void ANoteActor::resetNote()
+{
+	SetActorHiddenInGame(true);
+}
+
 FVector ANoteActor::getSpawnLocation(ENoteDirection direction)
 {
 	if (spawnLocations.Contains(direction))
@@ -43,6 +48,11 @@ FVector ANoteActor::getSpawnLocation(ENoteDirection direction)
 	}
 
 	return FVector::ZeroVector;
+}
+
+bool ANoteActor::isActive()
+{
+	return !IsHidden();
 }
 
 // Called when the game starts or when spawned

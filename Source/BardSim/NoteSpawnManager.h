@@ -16,8 +16,6 @@ public:
 	// Sets default values for this actor's properties
 	ANoteSpawnManager();
 
-
-
 	//Class to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	TSubclassOf<ANoteActor> noteActorClass;
@@ -26,10 +24,13 @@ public:
 	float noteSpeed = 100.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
-	float leadTime = 2.f;
+	float leadTime = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	UDataTable* noteDataTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
+	int32 poolSize = 20;
 
 	//Initialises with song asset data and config
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
@@ -39,16 +40,39 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
 	void processNoteSpawning(float currentSongTime);
 
-	//Load and sort note data
-	void loadSongData(UDataTable* inNoteDataTable);
+	//Spawn pool of notes to take from
+	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
+	void initialisePool();
+
+	//Get note from pool
+	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
+	ANoteActor* getPooledNote();
+
+	//spawn note from pool
+	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
+	void spawnNote(FNoteData& noteData);
+
+	//return note to pool
+	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
+	void removeNote(ANoteActor* note);
+
+	//Expose reference for read-only access
+	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
+	TArray<FNoteData*>& getNoteDataArray();
+	
 
 protected:
 
+	UPROPERTY()
+	TArray<ANoteActor*> notePool;
+
 	//Spawn one note actor from note data
-	UFUNCTION(BlueprintCallable)
 	void spawnNote(const FNoteData& note);
 
+	void loadSongData(UDataTable* inNoteDataTable);
+
 	//Current array of note data pointers
+	UPROPERTY()
 	TArray<FNoteData*> noteDataArray;
 
 	int32 nextNoteIndex = 0;

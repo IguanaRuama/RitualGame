@@ -57,22 +57,83 @@ void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 	}
 }
 
-void ANoteSpawnManager::loadSongData(UDataTable* inNoteDataTable)
+void ANoteSpawnManager::initialisePool()
 {
-}
+	UWorld* world = GetWorld();
 
-void ANoteSpawnManager::spawnNote(const FNoteData& note)
-{
-	if (!cachedWorld || !noteActorClass)
+	if (!world || !noteActorClass)
 	{
 		return;
 	}
 
-	FVector spawnLocation = ANoteActor::getSpawnLocation(note.direction);
-	ANoteActor* spawnedNote = cachedWorld->SpawnActor<ANoteActor>(noteActorClass, spawnLocation, FRotator::ZeroRotator);
+	notePool.Empty();
 
-	if (spawnedNote)
+	for (int i = 0; i < i < poolSize; ++i)
 	{
-		spawnedNote->initNote(note.direction, noteSpeed);
+		ANoteActor* note = world->SpawnActor<ANoteActor>(noteActorClass, FVector::ZeroVector, FRotator::ZeroRotator);
+
+		if (note)
+		{
+			note->SetActorHiddenInGame(true);
+			note->SetActorEnableCollision(false);
+			notePool.Add(note);
+		}
 	}
+}
+
+ANoteActor* ANoteSpawnManager::getPooledNote()
+{
+	for (ANoteActor* note : notePool)
+	{
+		if (!(note->isActive()))
+		{
+			return note;
+		}
+	}
+
+	return nullptr;
+}
+
+void ANoteSpawnManager::loadSongData(UDataTable* inNoteDataTable)
+{
+	noteDataArray.Empty();
+	if (inNoteDataTable) //checks if current song has assigned data
+	{
+		static const FString contextString(TEXT("Song Data")); //ERROR CHECKING
+
+		//retrieves all note data from table and inputs to the array, displays song data if error occurs
+		inNoteDataTable->GetAllRows<FNoteData>(contextString, noteDataArray);
+
+		//sorts notes by time in array
+		noteDataArray.Sort([](FNoteData* A, FNoteData* B)
+			{
+				return A->time < B->time;
+			});
+	}
+}
+
+void ANoteSpawnManager::spawnNote(const FNoteData& noteData)
+{
+	ANoteActor* note = getPooledNote();
+
+	if (note)
+	{
+		FVector spawnLocation = ANoteActor::getSpawnLocation(noteData.direction);
+		note->SetActorLocation(spawnLocation);
+		note->SetActorHiddenInGame(false);
+		note->initNote(noteData.direction, noteSpeed);
+	}
+}
+
+void ANoteSpawnManager::removeNote(ANoteActor* note)
+{
+	if (note)
+	{
+		note->resetNote();
+	}
+}
+
+TArray<FNoteData*>& ANoteSpawnManager::getNoteDataArray()
+{
+	return noteDataArray;
 }
