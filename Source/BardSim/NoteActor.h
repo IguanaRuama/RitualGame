@@ -16,8 +16,6 @@ public:
 	// Sets default values for this actor's properties
 	ANoteActor();
 
-	void initNote(ENoteDirection inDirection, float inSpeed);
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -32,7 +30,7 @@ public:
 
 	//init note with direction and speed
 	UFUNCTION(BlueprintCallable)
-	virtual void initNote(ENoteDirection direction, float speed);
+	virtual void initNote(ENoteDirection inDirection, float inSpeed);
 
 	//resets note state and hides for pooling
 	UFUNCTION(BlueprintCallable)

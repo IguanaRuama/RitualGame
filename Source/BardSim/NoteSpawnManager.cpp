@@ -36,7 +36,7 @@ void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 	while (low <= high)
 	{
 		int32 mid = (low + high) / 2;
-		float spawnTime = noteDataArray[mid]->time - leadTime;
+		float spawnTime = noteDataArray[mid].time - leadTime;
 
 		if (spawnTime <= currentSongTime)
 		{
@@ -53,7 +53,7 @@ void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 
 	for (; nextNoteIndex <= spawnUpToIndex; ++nextNoteIndex)
 	{
-		spawnNote(*noteDataArray[nextNoteIndex]);
+		spawnNote(noteDataArray[nextNoteIndex]);
 	}
 }
 
@@ -68,7 +68,7 @@ void ANoteSpawnManager::initialisePool()
 
 	notePool.Empty();
 
-	for (int i = 0; i < i < poolSize; ++i)
+	for (int i = 0; i < poolSize; ++i)
 	{
 		ANoteActor* note = world->SpawnActor<ANoteActor>(noteActorClass, FVector::ZeroVector, FRotator::ZeroRotator);
 
@@ -96,23 +96,37 @@ ANoteActor* ANoteSpawnManager::getPooledNote()
 
 void ANoteSpawnManager::loadSongData(UDataTable* inNoteDataTable)
 {
-	noteDataArray.Empty();
-	if (inNoteDataTable) //checks if current song has assigned data
+	if(!inNoteDataTable)
 	{
-		static const FString contextString(TEXT("Song Data")); //ERROR CHECKING
-
-		//retrieves all note data from table and inputs to the array, displays song data if error occurs
-		inNoteDataTable->GetAllRows<FNoteData>(contextString, noteDataArray);
-
-		//sorts notes by time in array
-		noteDataArray.Sort([](FNoteData* A, FNoteData* B)
-			{
-				return A->time < B->time;
-			});
+		UE_LOG(LogTemp, Warning, TEXT("loadSongData invalid Data Table pointer"));
+		return;
 	}
+
+	TArray<FNoteData*> tempNotePointers;
+
+	//retrieves all note data from table and inputs to the array, displays song data if error occurs
+	static const FString contextString(TEXT("Song Data")); //ERROR CHECKING
+	inNoteDataTable->GetAllRows<FNoteData>(contextString, tempNotePointers);
+
+	noteDataArray.Empty();
+
+	for (FNoteData* notePointer : tempNotePointers)
+	{
+		if (notePointer)
+		{
+			noteDataArray.Add(*notePointer);
+		}
+	}
+
+	//sorts notes by time in array
+	noteDataArray.Sort([](FNoteData A, FNoteData B)
+	{
+		return A.time < B.time;
+	});
+
 }
 
-void ANoteSpawnManager::spawnNote(const FNoteData& noteData)
+void ANoteSpawnManager::spawnNote(FNoteData noteData)
 {
 	ANoteActor* note = getPooledNote();
 
@@ -133,7 +147,7 @@ void ANoteSpawnManager::removeNote(ANoteActor* note)
 	}
 }
 
-TArray<FNoteData*>& ANoteSpawnManager::getNoteDataArray()
+TArray<FNoteData> ANoteSpawnManager::getNoteDataArray()
 {
 	return noteDataArray;
 }

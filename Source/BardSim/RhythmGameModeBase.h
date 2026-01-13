@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Engine/DataTable.h"
+#include "TimerManager.h"
 #include "NoteTypes.h"
 #include "Sound/SoundBase.h"
 #include "NoteInputHandling.h"
@@ -61,7 +62,7 @@ public:
 
 	//Time the note must spawn to have room to lead down screen
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
-	float leadTime = noteTravelDistance / noteSpeed;
+	float leadTime;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 score;

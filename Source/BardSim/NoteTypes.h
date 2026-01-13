@@ -12,7 +12,8 @@ enum class ENoteDirection : uint8
 	Left,
 	Up,
 	Down,
-	Right
+	Right,
+	None
 };
 
 USTRUCT(BlueprintType)

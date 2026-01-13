@@ -17,6 +17,7 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 	score = 0;
 	nextNoteIndex = 0;
 	songTime = 0.f;
+	leadTime = noteTravelDistance / noteSpeed;
 
 }
 
@@ -66,7 +67,7 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 
 	//200ms timing window
 	float timingWindow = 0.2f;
-	TArray<FNoteData*>& noteDataArray = noteSpawnManager->getNoteDataArray();
+	TArray<FNoteData> noteDataArray = noteSpawnManager->getNoteDataArray();
 
 	//If there is no upcoming notes, exit
 	if (!noteDataArray.IsValidIndex(nextNoteIndex))
@@ -78,14 +79,14 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 	//Skip notes missed
 	while (noteDataArray.IsValidIndex(nextNoteIndex))
 	{
-		FNoteData* currentNote = noteDataArray[nextNoteIndex];
-		if (!currentNote)
+		FNoteData currentNote = noteDataArray[nextNoteIndex];
+		if (currentNote.direction == ENoteDirection::None)
 		{
 			++nextNoteIndex;
 			continue;
 		}
 
-		float timeDiff = inputTime - currentNote->time;
+		float timeDiff = inputTime - currentNote.time;
 
 		//if input is earlier than the window, register miss
 		if (timeDiff < -timingWindow)
@@ -98,7 +99,7 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 		if ((FMath::Abs(timeDiff) <= timingWindow))
 		{
 			//checks direction match
-			if (currentNote->direction == inputDirection)
+			if (currentNote.direction == inputDirection)
 			{
 				//0 perfect, 1 imperfect
 				float accuracy = (FMath::Abs(timeDiff)) / timingWindow;
@@ -150,7 +151,7 @@ void ARhythmGameModeBase::registerMiss()
 
 void ARhythmGameModeBase::startSong()
 {
-	songTime = 0.F;
+	songTime = 0.f;
 
 	if (noteSpawnManager && noteSpawnManager->noteDataTable)
 	{
@@ -205,8 +206,6 @@ ANoteSpawnManager* ARhythmGameModeBase::findNoteSpawnManager()
 		
 		UE_LOG(LogTemp, Log, TEXT("Spawn manager found"));
 		return *spawnIt;
-		
-		break;
 	}
 	return nullptr;
 }
@@ -227,6 +226,8 @@ ACameraActor* ARhythmGameModeBase::findCamera()
 
 void ARhythmGameModeBase::processNoteSpawningTimer()
 {
+	songTime += GetWorld()->GetDeltaSeconds();
+
 	if (noteSpawnManager)
 	{
 		float currentSongTime = songTime;
