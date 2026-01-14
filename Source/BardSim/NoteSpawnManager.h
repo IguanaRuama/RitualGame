@@ -55,12 +55,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
 	void removeNote(ANoteActor* note);
 
-	//Expose reference for read-only access
+	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
 	TArray<FNoteData> getNoteDataArray();
 
 	//spawn note from pool
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
 	void spawnNote(FNoteData noteData);
+
+	//Current array of note data pointers
+	UPROPERTY()
+	TArray<FNoteData> noteDataArray;
 	
 
 protected:
@@ -69,10 +73,6 @@ protected:
 	TArray<ANoteActor*> notePool;
 
 	void loadSongData(UDataTable* inNoteDataTable);
-
-	//Current array of note data pointers
-	UPROPERTY()
-	TArray<FNoteData> noteDataArray;
 
 	int32 nextNoteIndex = 0;
 

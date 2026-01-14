@@ -23,7 +23,7 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 
 void ARhythmGameModeBase::BeginPlay()
 {
-	Super::BeginPlay();
+
 }
 
 void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime)

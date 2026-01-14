@@ -105,8 +105,11 @@ protected:
 	void processNoteSpawningTimer();
 
 	//starts timer
+	UFUNCTION(BlueprintCallable, Category = "Song")
 	void startNoteSpawningTimer(float interval);
 
+	//stops timer
+	UFUNCTION(BlueprintCallable, Category = "Song")
 	void stopNoteSpawningTimer();
 
 private:
