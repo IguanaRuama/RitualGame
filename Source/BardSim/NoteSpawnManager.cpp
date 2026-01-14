@@ -17,6 +17,7 @@ void ANoteSpawnManager::initialise(UDataTable* inNoteDataTable, TSubclassOf<ANot
 	noteSpeed = inSpeed;
 	leadTime = inLeadTime;
 	nextNoteIndex = 0;
+	lifeTime = leadTime + 2.f;
 
 	loadSongData(inNoteDataTable);
 }
@@ -135,7 +136,11 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 		FVector spawnLocation = ANoteActor::getSpawnLocation(noteData.direction);
 		note->SetActorLocation(spawnLocation);
 		note->SetActorHiddenInGame(false);
-		note->initNote(noteData.direction, noteSpeed);
+		note->initNote(noteData.direction, noteSpeed, lifeTime);
+
+		note->setSpawnManager(this);
+
+		note->initNote(noteData.direction, noteSpeed, lifeTime);
 	}
 }
 

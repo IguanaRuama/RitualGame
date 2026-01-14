@@ -8,7 +8,7 @@
 #include "Sound/SoundBase.h"
 #include "SongDataAsset.generated.h"
 
-UCLASS(Blueprintable)
+UCLASS()
 class BARDSIM_API USongDataAsset : public UDataAsset
 {
 	GENERATED_BODY()

@@ -7,7 +7,7 @@
 #include "NoteTypes.h"
 #include "NoteSpawnManager.generated.h"
 
-UCLASS(Blueprintable)
+UCLASS()
 class BARDSIM_API ANoteSpawnManager : public AActor
 {
 	GENERATED_BODY()

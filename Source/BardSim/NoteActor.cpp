@@ -26,18 +26,33 @@ ANoteActor::ANoteActor()
 	RootComponent = Mesh;
 }
 
-void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed)
+void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime)
 {
 	direction = inDirection;
 	speed = inSpeed;
 	
 	//sets spawn location for the note depending on its direction
 	SetActorLocation(getSpawnLocation(direction));
+
+	SetActorHiddenInGame(false);
+
+	if(GetWorld())
+	{
+		//Sets timer to remove note after certain duration
+		GetWorld()->GetTimerManager().SetTimer(lifeTimerHandle, this, &ANoteActor::onLifeTimerExpired, inLifeTime, false);
+	}
 }
 
 void ANoteActor::resetNote()
 {
+	if(GetWorld())
+	{
+		//Clears life timer
+		GetWorld()->GetTimerManager().ClearTimer(lifeTimerHandle);
+	}
+
 	SetActorHiddenInGame(true);
+
 }
 
 FVector ANoteActor::getSpawnLocation(ENoteDirection direction)
@@ -53,6 +68,19 @@ FVector ANoteActor::getSpawnLocation(ENoteDirection direction)
 bool ANoteActor::isActive()
 {
 	return !IsHidden();
+}
+
+void ANoteActor::setSpawnManager(ANoteSpawnManager* manager)
+{
+	spawnManager = manager;
+}
+
+void ANoteActor::onLifeTimerExpired()
+{
+	if(spawnManager)
+	{
+		spawnManager->removeNote(this);
+	}
 }
 
 // Called when the game starts or when spawned

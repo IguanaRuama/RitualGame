@@ -26,7 +26,7 @@ struct FSongLevelData
 };
 
 
-UCLASS(Blueprintable)
+UCLASS()
 class BARDSIM_API ARhythmGameModeBase : public AGameModeBase, public INoteInputHandling
 {
 	GENERATED_BODY()
