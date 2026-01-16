@@ -27,5 +27,8 @@ public:
 
 	//potential use for animations
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
-	float BPM = 0;
+	float bpm = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
+	float noteSpeed = 0;
 };

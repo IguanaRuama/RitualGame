@@ -34,8 +34,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float speed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+	FVector spawnLocationLeft = FVector(-230.f, -200.f, 0.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+	FVector spawnLocationUp = FVector(-80.f, -200.f, 0.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+	FVector spawnLocationDown = FVector(70.f, -200.f, 0.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+	FVector spawnLocationRight = FVector(220.f, -200.f, 0.f);
+
 	//Get fixed spawn location for each lane
-	static FVector getSpawnLocation(ENoteDirection direction);
+	FVector getSpawnLocation(ENoteDirection inDirection);
 
 	//init note with direction and speed
 	UFUNCTION(BlueprintCallable)
@@ -61,8 +73,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//Sets spawn locations (value) to be found by directions (Key)
+	//Assigned in blueprints
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+	TMap<ENoteDirection, FVector> spawnLocations;
+
 private:
-	//Sets spawn locations (value) to be found by directions (Key), remains const, cannot be edited
-	static const TMap<ENoteDirection, FVector> spawnLocations;
+	
 
 };

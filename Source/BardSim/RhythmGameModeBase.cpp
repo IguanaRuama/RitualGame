@@ -121,13 +121,23 @@ void ARhythmGameModeBase::registerMiss()
 	combo = 0;
 }
 
-void ARhythmGameModeBase::startSong()
+void ARhythmGameModeBase::startSong(float inInterval)
 {
 	songTime = 0.f;
+
+	if (currentSongAudio)
+	{
+		UGameplayStatics::PlaySound2D(this, currentSongAudio);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("startSong: currentSongAudio is null, no music played"));
+	}
 
 	if (noteSpawnManager && noteSpawnManager->noteDataTable)
 	{
 		noteSpawnManager->initialise(noteSpawnManager->noteDataTable, noteActorClass, noteSpeed, leadTime);
+		startNoteSpawningTimer(inInterval);
 	}
 }
 
@@ -142,6 +152,9 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 			currentSongDataAsset = songDataAsset;
 			currentSongDataTable = songDataAsset->noteDataTable;
 			currentSongAudio = songDataAsset->songAudio;
+			noteSpeed = songDataAsset->noteSpeed;
+			bpm = songDataAsset->bpm;
+			leadTime = noteTravelDistance / noteSpeed;
 		}
 		else
 		{
@@ -149,6 +162,9 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 			currentSongDataAsset = nullptr;
 			currentSongDataTable = nullptr;
 			currentSongAudio = nullptr;
+			noteSpeed = 0;
+			bpm = 0;
+			leadTime = 0;
 		}
 	}
 	else
@@ -157,6 +173,9 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 		currentSongDataAsset = nullptr;
 		currentSongDataTable = nullptr;
 		currentSongAudio = nullptr;
+		noteSpeed = 0;
+		bpm = 0;
+		leadTime = 0;
 	}
 }
 

@@ -50,7 +50,11 @@ public:
 
 	//Note speed (units per sec)
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
-	float noteSpeed = 400.f;
+	float noteSpeed;
+
+	//Note speed (units per sec)
+	UPROPERTY(EditDefaultsOnly, Category = "Song")
+	float bpm;
 
 	//Current score and combo
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
@@ -75,7 +79,7 @@ public:
 	class ANoteSpawnManager* noteSpawnManager;
 
 	UFUNCTION(BlueprintCallable, Category = "Song")
-	void startSong();
+	void startSong(float inInterval);
 
 protected:
 
@@ -90,6 +94,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	USoundBase* currentSongAudio;
 
+	UFUNCTION(BlueprintCallable, Category = "Song")
 	void loadSongForLevel(const FName& levelName);
 
 	//Finds spawn manager to reference

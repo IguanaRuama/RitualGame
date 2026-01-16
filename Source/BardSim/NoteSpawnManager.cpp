@@ -133,7 +133,9 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 
 	if (note)
 	{
-		FVector spawnLocation = ANoteActor::getSpawnLocation(noteData.direction);
+		UE_LOG(LogTemp, Log, TEXT("Spawning note at time: %f, direction: %d"), noteData.time, (int32)noteData.direction);
+
+		FVector spawnLocation = note->getSpawnLocation(noteData.direction);
 		note->SetActorLocation(spawnLocation);
 		note->SetActorHiddenInGame(false);
 		note->initNote(noteData.direction, noteSpeed, lifeTime);
@@ -141,6 +143,10 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 		note->setSpawnManager(this);
 
 		note->initNote(noteData.direction, noteSpeed, lifeTime);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No available pooled notes! Pool size: %d"), notePool.Num());
 	}
 }
 
