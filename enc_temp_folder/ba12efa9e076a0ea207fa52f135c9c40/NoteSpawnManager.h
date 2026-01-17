@@ -39,7 +39,7 @@ public:
 	UDataTable* noteDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
-	int32 poolSize;
+	int32 poolSize = 20;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	FVector poolLocation;

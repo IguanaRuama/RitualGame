@@ -15,22 +15,29 @@ ANoteActor::ANoteActor()
 	UStaticMeshComponent* Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = Mesh;
 
+	movementTickInterval = 0.01f;
+
 }
 
-void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime)
+void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime, FVector inPoolLocation, FVector& inSpawnLocation, FVector& inEndLocation)
 {
+	elapsedTime = 0.f;
+	totalTravelTime = inLifeTime;
 	direction = inDirection;
 	speed = inSpeed;
+	poolLocation = inPoolLocation;
+
+	startLocation = inSpawnLocation;
+	endLocation = inEndLocation;
 	
 	//sets spawn location for the note depending on its direction
-	SetActorLocation(getSpawnLocation(direction));
-
+	SetActorLocation(startLocation);
 	SetActorHiddenInGame(false);
 
 	if(GetWorld())
 	{
 		//Sets timer to remove note after certain duration
-		GetWorld()->GetTimerManager().SetTimer(lifeTimerHandle, this, &ANoteActor::onLifeTimerExpired, inLifeTime, false);
+		GetWorld()->GetTimerManager().SetTimer(movementTimerHandle, this, &ANoteActor::updateMovement, movementTickInterval, true);
 	}
 }
 
@@ -39,21 +46,13 @@ void ANoteActor::resetNote()
 	if(GetWorld())
 	{
 		//Clears life timer
-		GetWorld()->GetTimerManager().ClearTimer(lifeTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(movementTimerHandle);
 	}
 
 	SetActorHiddenInGame(true);
+	SetActorLocation(poolLocation);
+	direction = ENoteDirection::None;
 
-}
-
-FVector ANoteActor::getSpawnLocation(ENoteDirection inDirection)
-{
-	if (spawnLocations.Contains(direction))
-	{
-		return spawnLocations[direction];
-	}
-
-	return FVector::ZeroVector;
 }
 
 bool ANoteActor::isActive()
@@ -66,11 +65,19 @@ void ANoteActor::setSpawnManager(ANoteSpawnManager* manager)
 	spawnManager = manager;
 }
 
-void ANoteActor::onLifeTimerExpired()
+void ANoteActor::updateMovement()
 {
-	if(spawnManager)
+	elapsedTime += movementTickInterval;
+	
+	float progress = FMath::Clamp(elapsedTime / totalTravelTime, 0.f, 1.f);
+
+	FVector newLocation = FMath::Lerp(startLocation, endLocation, progress);
+
+	SetActorLocation(newLocation);
+
+	if (progress >= 1.f)
 	{
-		spawnManager->removeNote(this);
+		resetNote();
 	}
 }
 

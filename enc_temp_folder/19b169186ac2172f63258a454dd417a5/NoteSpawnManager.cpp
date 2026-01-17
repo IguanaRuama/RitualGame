@@ -19,7 +19,6 @@ void ANoteSpawnManager::initialise(UDataTable* inNoteDataTable, TSubclassOf<ANot
 	nextNoteIndex = 0;
 	lifeTime = leadTime + 2.f;
 	poolLocation = FVector(100.f, 100.f, 0.f);
-	poolSize = 20;
 
 	loadSongData(inNoteDataTable);
 }

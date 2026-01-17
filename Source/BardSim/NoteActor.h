@@ -22,7 +22,7 @@ public:
 
 	//Timer handle for note life duration
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FTimerHandle lifeTimerHandle;
+	FTimerHandle movementTimerHandle;
 
 	//Reference to spawn manager
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -35,23 +35,26 @@ public:
 	float speed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-	FVector spawnLocationLeft = FVector(-230.f, -200.f, 0.f);
+	FVector startLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-	FVector spawnLocationUp = FVector(-80.f, -200.f, 0.f);
+	FVector endLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-	FVector spawnLocationDown = FVector(70.f, -200.f, 0.f);
+	FVector poolLocation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-	FVector spawnLocationRight = FVector(220.f, -200.f, 0.f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float elapsedTime;
 
-	//Get fixed spawn location for each lane
-	FVector getSpawnLocation(ENoteDirection inDirection);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float totalTravelTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float movementTickInterval;
 
 	//init note with direction and speed
 	UFUNCTION(BlueprintCallable)
-	virtual void initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime);
+	virtual void initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime, FVector inPoolLocation, FVector& inSpawnLocation, FVector& inEndLocation);
 
 	//resets note state and hides for pooling
 	UFUNCTION(BlueprintCallable)
@@ -65,18 +68,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void setSpawnManager(ANoteSpawnManager* manager);
 
-	//Called when life timer expires
+	//updates note travel
 	UFUNCTION(BlueprintCallable)
-	void onLifeTimerExpired();
+	void updateMovement();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	//Sets spawn locations (value) to be found by directions (Key)
-	//Assigned in blueprints
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-	TMap<ENoteDirection, FVector> spawnLocations;
 
 private:
 	
