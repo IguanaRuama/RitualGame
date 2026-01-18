@@ -104,7 +104,6 @@ protected:
 	ACameraActor* findCamera();
 
 	//timer for spawning notes
-	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	FTimerHandle noteSpawnTimerHandle;
 
 	//controls timer

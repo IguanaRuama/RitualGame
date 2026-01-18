@@ -145,27 +145,18 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 	{
 
 		FVector spawnLocation = FVector::ZeroVector;
-		if (AActor** foundSpawn = spawnLocations.Find(noteData.direction))
+		if (FVector* foundSpawn = spawnLocations.Find(noteData.direction))
 		{
-			if (*foundSpawn)
-			{
-				spawnLocation = (*foundSpawn)->GetActorLocation();
-			}
-			
+			spawnLocation = *foundSpawn;
 		}
 
 		FVector endLocation = FVector::ZeroVector;
-		if (AActor** foundEnd = endLocations.Find(noteData.direction))
+		if (FVector* foundEnd = endLocations.Find(noteData.direction))
 		{
-			if (*foundEnd)
-			{
-				endLocation = (*foundEnd)->GetActorLocation();
-			}
+			endLocation = *foundEnd;
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("Spawning note at time: %f, direction: %d"), noteData.time, noteData.direction);
-
-		UE_LOG(LogTemp, Warning, TEXT("EndLocation for direction %d = %s"), noteData.direction, *endLocation.ToString());
+		UE_LOG(LogTemp, Log, TEXT("Spawning note at time: %f, direction: %d"), noteData.time, (int32)noteData.direction);
 
 		note->SetActorLocation(spawnLocation);
 		note->SetActorHiddenInGame(false);

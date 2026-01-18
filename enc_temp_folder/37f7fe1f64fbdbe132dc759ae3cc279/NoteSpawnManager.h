@@ -17,10 +17,10 @@ public:
 	ANoteSpawnManager();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Positions")
-	TMap<ENoteDirection, AActor*> spawnLocations;
+	TMap<ENoteDirection, FVector> spawnLocations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Positions")
-	TMap<ENoteDirection, AActor*> endLocations;
+	TMap<ENoteDirection, FVector> endLocations;
 
 	//Class to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
