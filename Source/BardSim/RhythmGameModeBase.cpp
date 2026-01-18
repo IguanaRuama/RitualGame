@@ -213,14 +213,11 @@ ACameraActor* ARhythmGameModeBase::findCamera()
 
 void ARhythmGameModeBase::processNoteSpawningTimer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Timer processing"));
-
 	songTime += GetWorld()->GetDeltaSeconds();
 	
 
 	if (noteSpawnManager)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Valid manager"));
 		float currentSongTime = songTime;
 		noteSpawnManager->processNoteSpawning(currentSongTime);
 	}
@@ -228,17 +225,7 @@ void ARhythmGameModeBase::processNoteSpawningTimer()
 
 void ARhythmGameModeBase::startNoteSpawningTimer(float interval)
 {
-	UE_LOG(LogTemp, Warning, TEXT("StartingTimeer"));
 	GetWorldTimerManager().SetTimer(noteSpawnTimerHandle, this, &ARhythmGameModeBase::processNoteSpawningTimer, interval, true);
-
-	if (GetWorldTimerManager().IsTimerActive(noteSpawnTimerHandle))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Timer success"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Timer failure"));
-	}
 
 }
 

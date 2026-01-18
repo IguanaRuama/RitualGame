@@ -22,8 +22,6 @@ ANoteActor::ANoteActor()
 void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime, FVector inPoolLocation, FVector& inSpawnLocation, FVector& inEndLocation)
 {
 
-	UE_LOG(LogTemp, Log, TEXT("Started movement timer for note %p"), this);
-
 	elapsedTime = 0.f;
 	totalTravelTime = inLifeTime;
 	direction = inDirection;
@@ -75,7 +73,6 @@ void ANoteActor::setSpawnManager(ANoteSpawnManager* manager)
 
 void ANoteActor::updateMovement()
 {
-	UE_LOG(LogTemp, Log, TEXT("updateMovement called for note %p"), this);
 
 	elapsedTime += movementTickInterval;
 	
@@ -89,8 +86,6 @@ void ANoteActor::updateMovement()
 	{
 		resetNote();
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("Note %p moving to location: %s, progress: %f"), this, *newLocation.ToString(), progress);
 }
 
 // Called when the game starts or when spawned

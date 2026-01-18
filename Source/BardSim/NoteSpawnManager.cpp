@@ -61,8 +61,6 @@ void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 		spawnNote(noteDataArray[nextNoteIndex]);
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Process spawning | currentSongTime: %f | nextNoteIndex: %d | spawnUpToIndex: %d"), currentSongTime, nextNoteIndex, spawnUpToIndex);
-
 }
 
 void ANoteSpawnManager::initialisePool()
@@ -95,11 +93,9 @@ ANoteActor* ANoteSpawnManager::getPooledNote()
 	{
 		if (!(note->isActive()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT(" NOTES BITCH"));
 			return note;
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("NULLPTR BITCH"));
 	return nullptr;
 }
 
@@ -165,10 +161,6 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 				endLocation = (*foundEnd)->GetActorLocation();
 			}
 		}
-
-		UE_LOG(LogTemp, Log, TEXT("Spawning note at time: %f, direction: %d"), noteData.time, noteData.direction);
-
-		UE_LOG(LogTemp, Warning, TEXT("EndLocation for direction %d = %s"), noteData.direction, *endLocation.ToString());
 
 		note->SetActorLocation(spawnLocation);
 		note->SetActorHiddenInGame(false);
