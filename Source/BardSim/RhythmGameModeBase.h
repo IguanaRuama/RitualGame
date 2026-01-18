@@ -49,7 +49,7 @@ public:
 	TSubclassOf<class ANoteActor> noteActorClass;
 
 	//Note speed (units per sec)
-	UPROPERTY(EditDefaultsOnly, Category = "Song")
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	float noteSpeed;
 
 	//Note speed (units per sec)
@@ -88,7 +88,7 @@ protected:
 	USongDataAsset* currentSongDataAsset;
 
 	//Song DataTable with note timings/directions
-	UPROPERTY(EditDefaultsOnly, Category = "Song")
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	UDataTable* currentSongDataTable;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Song")

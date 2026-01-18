@@ -9,6 +9,7 @@
 ANoteSpawnManager::ANoteSpawnManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	poolSize = 20;
 }
 
 void ANoteSpawnManager::initialise(UDataTable* inNoteDataTable, TSubclassOf<ANoteActor> inNoteActorClass, float inSpeed, float inLeadTime)
@@ -18,14 +19,15 @@ void ANoteSpawnManager::initialise(UDataTable* inNoteDataTable, TSubclassOf<ANot
 	leadTime = inLeadTime;
 	nextNoteIndex = 0;
 	lifeTime = leadTime + 2.f;
-	poolLocation = FVector(100.f, 100.f, 0.f);
-	poolSize = 20;
+	noteDataTable = inNoteDataTable;
 
-	loadSongData(inNoteDataTable);
+
+	loadSongData(noteDataTable);
 }
 
 void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 {
+
 	if (noteDataArray.Num() == 0 || !noteActorClass)
 	{
 		return;
@@ -90,10 +92,11 @@ ANoteActor* ANoteSpawnManager::getPooledNote()
 	{
 		if (!(note->isActive()))
 		{
+			UE_LOG(LogTemp, Warning, TEXT(" NOTES BITCH"));
 			return note;
 		}
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("NULLPTR BITCH"));
 	return nullptr;
 }
 
@@ -165,14 +168,6 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No available pooled notes! Pool size: %d"), notePool.Num());
-	}
-}
-
-void ANoteSpawnManager::removeNote(ANoteActor* note)
-{
-	if (note)
-	{
-		note->resetNote();
 	}
 }
 

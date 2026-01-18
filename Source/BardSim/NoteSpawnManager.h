@@ -60,10 +60,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
 	ANoteActor* getPooledNote();
 
-	//return note to pool
-	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
-	void removeNote(ANoteActor* note);
-
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
 	TArray<FNoteData> getNoteDataArray();
 

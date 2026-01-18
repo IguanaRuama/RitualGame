@@ -133,12 +133,6 @@ void ARhythmGameModeBase::startSong(float inInterval)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("startSong: currentSongAudio is null, no music played"));
 	}
-
-	if (noteSpawnManager && noteSpawnManager->noteDataTable)
-	{
-		noteSpawnManager->initialise(noteSpawnManager->noteDataTable, noteActorClass, noteSpeed, leadTime);
-		startNoteSpawningTimer(inInterval);
-	}
 }
 
 void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
@@ -228,6 +222,7 @@ void ARhythmGameModeBase::processNoteSpawningTimer()
 
 void ARhythmGameModeBase::startNoteSpawningTimer(float interval)
 {
+	UE_LOG(LogTemp, Warning, TEXT("StartingTimeer"));
 	GetWorldTimerManager().SetTimer(noteSpawnTimerHandle, this, &ARhythmGameModeBase::processNoteSpawningTimer, interval, true);
 
 }
