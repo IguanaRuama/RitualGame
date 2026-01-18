@@ -60,6 +60,9 @@ void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 	{
 		spawnNote(noteDataArray[nextNoteIndex]);
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("Process spawning | currentSongTime: %f | nextNoteIndex: %d | spawnUpToIndex: %d"), currentSongTime, nextNoteIndex, spawnUpToIndex);
+
 }
 
 void ANoteSpawnManager::initialisePool()
