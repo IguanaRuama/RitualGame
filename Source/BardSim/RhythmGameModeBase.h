@@ -94,6 +94,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	USoundBase* currentSongAudio;
 
+
+	UPROPERTY(BlueprintReadWrite, Category = "Song")
+	float timingWindow;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	float noteSpawningInterval;
 

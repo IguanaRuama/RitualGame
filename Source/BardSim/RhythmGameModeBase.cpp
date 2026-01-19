@@ -37,8 +37,8 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 
 	UE_LOG(LogTemp, Log, TEXT("GameMode received note input: %d at time %f"), (int32)inputDirection, inputTime);
 
-	//200ms timing window
-	float timingWindow = 0.2f;
+	UE_LOG(LogTemp, Log, TEXT("Timing Window: %f"), timingWindow);
+
 	TArray<FNoteData> noteDataArray = noteSpawnManager->getNoteDataArray();
 
 	//If there is no upcoming notes, exit
@@ -151,6 +151,15 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 			currentSongAudio = songDataAsset->songAudio;
 			noteSpeed = songDataAsset->noteSpeed;
 			bpm = songDataAsset->bpm;
+
+			float baseWindow = 0.1f;
+			float scalingFactor = 0.0001f;
+			float minWindow = 0.1f;
+			float maxWindow = 0.5f;
+
+			timingWindow = FMath::Clamp(baseWindow + (noteSpeed * scalingFactor), minWindow, maxWindow);
+
+			UE_LOG(LogTemp, Log, TEXT("Timing window initialized to %.3f"), timingWindow);
 		}
 		else
 		{
