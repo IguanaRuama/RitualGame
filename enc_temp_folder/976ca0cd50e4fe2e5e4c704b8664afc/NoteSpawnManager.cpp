@@ -12,55 +12,13 @@ ANoteSpawnManager::ANoteSpawnManager()
 	poolSize = 20;
 }
 
-float ANoteSpawnManager::getAverageNoteTravelDistance()
-{
-	float totalDistance = 0.f;
-	int32 count = 0;
-
-	for (auto& Elem : spawnLocations)
-	{
-		float distance = getTravelDistanceForDirection(Elem.Key);
-		if (distance > 0.f)
-		{
-			totalDistance += distance;
-			++count;
-		}
-	}
-
-	if (count > 0)
-	{
-		return (totalDistance / count);
-	}
-	else
-	{
-		return 0.f;
-	}
-}
-
-void ANoteSpawnManager::setTravelTimes()
-{
-	if (noteSpeed <= 0.f)
-	{
-		return;
-	}
-
-	ENoteDirection exampleDir = ENoteDirection::Left;
-
-	if ((spawnLocations.Contains(exampleDir)) && (hitLocations.Contains(exampleDir)) && (endLocations.Contains(exampleDir)))
-	{
-		FVector spawnLocation = spawnLocations[exampleDir]->GetActorLocation();
-		FVector endLocation = endLocations[exampleDir]->GetActorLocation();
-		FVector hitLocation = hitLocations[exampleDir]->GetActorLocation();
-	}
-}
-
 void ANoteSpawnManager::initialise(UDataTable* inNoteDataTable, TSubclassOf<ANoteActor> inNoteActorClass, float inSpeed, float inLeadTime)
 {
 	noteActorClass = inNoteActorClass;
 	noteSpeed = inSpeed;
 	leadTime = inLeadTime;
 	nextNoteIndex = 0;
-	lifeTime = leadTime;
+	lifeTime = leadTime + 2.f;
 	noteDataTable = inNoteDataTable;
 
 
@@ -69,6 +27,7 @@ void ANoteSpawnManager::initialise(UDataTable* inNoteDataTable, TSubclassOf<ANot
 
 void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 {
+
 	if (noteDataArray.Num() == 0 || !noteActorClass)
 	{
 		return;
@@ -100,8 +59,6 @@ void ANoteSpawnManager::processNoteSpawning(float currentSongTime)
 	for (; nextNoteIndex <= spawnUpToIndex; ++nextNoteIndex)
 	{
 		spawnNote(noteDataArray[nextNoteIndex]);
-
-		UE_LOG(LogTemp, Warning, TEXT("spawning note: %f"), currentSongTime);
 	}
 
 }
@@ -179,29 +136,14 @@ void ANoteSpawnManager::loadSongData(UDataTable* inNoteDataTable)
 
 }
 
-float ANoteSpawnManager::getTravelDistanceForDirection(ENoteDirection direction)
-{
-	AActor** spawnActorPtr = spawnLocations.Find(direction);
-	AActor** endActorPtr = endLocations.Find(direction);
-
-	if (spawnActorPtr && endActorPtr && *spawnActorPtr && *endActorPtr)
-	{
-		return FVector::Dist((*spawnActorPtr)->GetActorLocation(), (*endActorPtr)->GetActorLocation());
-	}
-	return 0.f;
-
-}
-
 void ANoteSpawnManager::spawnNote(FNoteData noteData)
 {
 	ANoteActor* note = getPooledNote();
 
 	if (note)
 	{
-		FVector spawnLocation = FVector::ZeroVector;
-		FVector endLocation = FVector::ZeroVector;
-		FVector hitLocation = FVector::ZeroVector;
 
+		FVector spawnLocation = FVector::ZeroVector;
 		if (AActor** foundSpawn = spawnLocations.Find(noteData.direction))
 		{
 			if (*foundSpawn)
@@ -210,6 +152,8 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 			}
 			
 		}
+
+		FVector endLocation = FVector::ZeroVector;
 		if (AActor** foundEnd = endLocations.Find(noteData.direction))
 		{
 			if (*foundEnd)
@@ -217,29 +161,13 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 				endLocation = (*foundEnd)->GetActorLocation();
 			}
 		}
-		if (AActor** foundHit = hitLocations.Find(noteData.direction))
-		{
-			if (*foundHit)
-			{
-				hitLocation = (*foundHit)->GetActorLocation();
-			}
-		}
-
-		spawnToHitTime = 0.f;
-		hitToEndTime = 0.f;
-
-		if (noteSpeed > 0.f)
-		{
-			spawnToHitTime = FVector::Dist(spawnLocation, hitLocation) / noteSpeed;
-			hitToEndTime = FVector::Dist(hitLocation, endLocation) / noteSpeed;
-		}
 
 		note->SetActorLocation(spawnLocation);
 		note->SetActorHiddenInGame(false);
 
 		note->setSpawnManager(this);
 
-		note->initNote(noteData.direction, noteSpeed, lifeTime, poolLocation, spawnLocation, endLocation, hitLocation, hitToEndTime);
+		note->initNote(noteData.direction, noteSpeed, lifeTime, poolLocation, spawnLocation, endLocation);
 	}
 	else
 	{

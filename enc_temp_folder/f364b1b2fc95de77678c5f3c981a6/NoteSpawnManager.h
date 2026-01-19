@@ -22,9 +22,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Positions")
 	TMap<ENoteDirection, AActor*> endLocations;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Positions")
-	TMap<ENoteDirection, AActor*> hitLocations;
-
 	//Class to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	TSubclassOf<ANoteActor> noteActorClass;
@@ -34,12 +31,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	float leadTime = 1.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
-	float spawnToHitTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
-	float hitToEndTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	float lifeTime;
@@ -52,14 +43,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	FVector poolLocation;
-
-	// Gets average distance for all directions
-	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
-	float getAverageNoteTravelDistance();
-
-	//sets travel times for spawn to hit to end
-	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
-	void setTravelTimes();
 
 	//Initialises with song asset data and config
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
@@ -102,7 +85,4 @@ protected:
 	int32 nextNoteIndex = 0;
 
 	UWorld* cachedWorld = nullptr;
-
-private:
-	float getTravelDistanceForDirection(ENoteDirection direction);
 };

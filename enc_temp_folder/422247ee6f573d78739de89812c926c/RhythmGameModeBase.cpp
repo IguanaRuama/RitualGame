@@ -100,6 +100,7 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 
 	//No notes macthed / falls out of loop
 	registerMiss();
+
 }
 
 float ARhythmGameModeBase::getSongTime_Implementation() const
@@ -129,8 +130,6 @@ void ARhythmGameModeBase::startSong(float inInterval)
 		UGameplayStatics::PlaySound2D(this, currentSongAudio);
 
 		startNoteSpawningTimer(inInterval);
-
-		UE_LOG(LogTemp, Warning, TEXT("startSong: Music started at: %f"), songTime);
 	}
 	else
 	{
@@ -151,6 +150,7 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 			currentSongAudio = songDataAsset->songAudio;
 			noteSpeed = songDataAsset->noteSpeed;
 			bpm = songDataAsset->bpm;
+			leadTime = noteTravelDistance / noteSpeed;
 		}
 		else
 		{
@@ -213,7 +213,7 @@ ACameraActor* ARhythmGameModeBase::findCamera()
 
 void ARhythmGameModeBase::processNoteSpawningTimer()
 {
-	songTime += noteSpawningInterval;
+	songTime += GetWorld()->GetDeltaSeconds();
 	
 
 	if (noteSpawnManager)
@@ -225,7 +225,6 @@ void ARhythmGameModeBase::processNoteSpawningTimer()
 
 void ARhythmGameModeBase::startNoteSpawningTimer(float interval)
 {
-	noteSpawningInterval = interval;
 	GetWorldTimerManager().SetTimer(noteSpawnTimerHandle, this, &ARhythmGameModeBase::processNoteSpawningTimer, interval, true);
 
 }

@@ -49,7 +49,7 @@ public:
 	TSubclassOf<class ANoteActor> noteActorClass;
 
 	//Note speed (units per sec)
-	UPROPERTY(BlueprintReadWrite, Category = "Song")
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	float noteSpeed;
 
 	//Note speed (units per sec)
@@ -61,11 +61,11 @@ public:
 	int32 combo;
 
 	//Distance note has to travel to hit point
-	UPROPERTY(BlueprintReadWrite, Category = "Song")
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	float noteTravelDistance = 400.f;
 
 	//Time the note must spawn to have room to lead down screen
-	UPROPERTY(BlueprintReadWrite, Category = "Song")
+	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	float leadTime;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
@@ -93,9 +93,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	USoundBase* currentSongAudio;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Song")
-	float noteSpawningInterval;
 
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void loadSongForLevel(const FName& levelName);

@@ -41,19 +41,10 @@ public:
 	FVector endLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-	FVector hitLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
 	FVector poolLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float elapsedTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float spawnToHitTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float hitToEndTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float totalTravelTime;
@@ -63,7 +54,7 @@ public:
 
 	//init note with direction and speed
 	UFUNCTION(BlueprintCallable)
-	virtual void initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime, FVector inPoolLocation, FVector& inSpawnLocation, FVector& inEndLocation, FVector& inHitLocation, float inHitToEndTime);
+	virtual void initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime, FVector inPoolLocation, FVector& inSpawnLocation, FVector& inEndLocation);
 
 	//resets note state and hides for pooling
 	UFUNCTION(BlueprintCallable)
@@ -87,7 +78,5 @@ protected:
 
 private:
 	
-	enum class ENoteMovePhase { SpawnToHit, HitToEnd, Done };
-	ENoteMovePhase movePhase = ENoteMovePhase::Done;
 
 };

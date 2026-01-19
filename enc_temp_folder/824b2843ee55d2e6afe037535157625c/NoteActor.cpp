@@ -19,22 +19,17 @@ ANoteActor::ANoteActor()
 
 }
 
-void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed, float inLeadTime, FVector inPoolLocation, FVector& inSpawnLocation, FVector& inEndLocation, FVector& inHitLocation, float InHitToEndTime)
+void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed, float inLifeTime, FVector inPoolLocation, FVector& inSpawnLocation, FVector& inEndLocation)
 {
 
 	elapsedTime = 0.f;
-	movePhase = ENoteMovePhase::SpawnToHit;
-
-	spawnToHitTime = inLeadTime;
-	hitToEndTime = InHitToEndTime;
-
+	totalTravelTime = inLifeTime;
 	direction = inDirection;
 	speed = inSpeed;
-
 	poolLocation = inPoolLocation;
+
 	startLocation = inSpawnLocation;
 	endLocation = inEndLocation;
-	hitLocation = inHitLocation;
 	
 	//sets spawn location for the note depending on its direction
 	SetActorLocation(startLocation);
@@ -63,7 +58,6 @@ void ANoteActor::resetNote()
 	SetActorHiddenInGame(true);
 	SetActorLocation(poolLocation);
 	direction = ENoteDirection::None;
-	movePhase = ENoteMovePhase::Done;
 
 }
 
@@ -79,31 +73,18 @@ void ANoteActor::setSpawnManager(ANoteSpawnManager* manager)
 
 void ANoteActor::updateMovement()
 {
+
 	elapsedTime += movementTickInterval;
 	
-	if (movePhase == ENoteMovePhase::SpawnToHit)
-	{
-		float progress = FMath::Clamp(elapsedTime / spawnToHitTime, 0.f, 1.f);
-		FVector newLocation = FMath::Lerp(startLocation, hitLocation, progress);
-		SetActorLocation(newLocation);
+	float progress = FMath::Clamp(elapsedTime / totalTravelTime, 0.f, 1.f);
 
-		if (progress >= 1.f)
-		{
-			movePhase = ENoteMovePhase::HitToEnd;
-			elapsedTime = 0.f;
-		}
-	}
-	else if (movePhase == ENoteMovePhase::HitToEnd)
-	{
-		float progress = FMath::Clamp(elapsedTime / hitToEndTime, 0.f, 1.f);
-		FVector newLocation = FMath::Lerp(hitLocation, endLocation, progress);
-		SetActorLocation(newLocation);
+	FVector newLocation = FMath::Lerp(startLocation, endLocation, progress);
 
-		if (progress >= 1.f)
-		{
-			movePhase = ENoteMovePhase::Done;
-			resetNote();
-		}
+	SetActorLocation(newLocation);
+
+	if (progress >= 1.f)
+	{
+		resetNote();
 	}
 }
 
