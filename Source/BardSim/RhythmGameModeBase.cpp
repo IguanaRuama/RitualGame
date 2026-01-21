@@ -18,7 +18,14 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 	nextNoteIndex = 0;
 	songTime = 0.f;
 	leadTime = noteTravelDistance / noteSpeed;
-
+	highestCombo = 0;
+	averageAccuracy = 0;
+	passed = false;
+	grade = TEXT("F");
+	baseScorePerNote = 100;
+	totalHits = 0;
+	instrumentFadeDuration = 1.f;
+	instrumentAccuracyThresholds = {0.0f, 0.5f, 0.6f, 0.7f};
 }
 
 void ARhythmGameModeBase::BeginPlay()
@@ -44,7 +51,6 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 	//If there is no upcoming notes, exit
 	if (!noteDataArray.IsValidIndex(nextNoteIndex))
 	{
-		registerMiss();
 		return;
 	}
 
@@ -97,9 +103,6 @@ void ARhythmGameModeBase::handleNoteInput_Implementation(ENoteDirection inputDir
 			continue;
 		}
 	}
-
-	//No notes macthed / falls out of loop
-	registerMiss();
 }
 
 float ARhythmGameModeBase::getSongTime_Implementation() const
@@ -110,31 +113,217 @@ float ARhythmGameModeBase::getSongTime_Implementation() const
 void ARhythmGameModeBase::registerHit(float accuracy)
 {
 	combo++;
+	totalHits++;
+	averageAccuracy = ((averageAccuracy * (totalHits - 1)) + (1.0f - accuracy)) / totalHits;
+
+	if (accuracy < 0.2f)
+	{
+		perfectHits++;
+	}
+	else if (accuracy < 0.5f)
+	{
+		greatHits++;
+	}
+	else if (accuracy < 0.8f)
+	{
+		goodHits++;
+	}
+	else
+	{
+		registerMiss();
+	}
 
 	//score is 100 + (combo multiplier - accuracy multiplier)
-	score += 100 + (combo * 10) - (FMath::RoundToInt(accuracy * 50));
+	score += baseScorePerNote + (combo * 10) - (FMath::RoundToInt(accuracy * 50));
+
+	if (combo > highestCombo)
+	{
+		highestCombo = combo;
+	}
+
+	updateInstrumentLayers();
 }
 
 void ARhythmGameModeBase::registerMiss()
 {
 	combo = 0;
+	misses++;
 }
 
 void ARhythmGameModeBase::startSong(float inInterval)
 {
 	songTime = 0.f;
+	perfectHits = 0;
+	greatHits = 0;
+	goodHits = 0;
+	misses = 0;
 
-	if (currentSongAudio)
+	if (instrumentAudioComponents.Num() == 0)
 	{
-		UGameplayStatics::PlaySound2D(this, currentSongAudio);
+		UE_LOG(LogTemp, Warning, TEXT("startSong: no instruments found"));
+	}
 
-		startNoteSpawningTimer(inInterval);
+	startNoteSpawningTimer(inInterval);
 
-		UE_LOG(LogTemp, Warning, TEXT("startSong: Music started at: %f"), songTime);
+}
+
+void ARhythmGameModeBase::onSongAudioFinished()
+{
+	UE_LOG(LogTemp, Log, TEXT("Song playback finished"));
+	stopNoteSpawningTimer();
+
+	// Stop all instrument audio components
+	for (UAudioComponent* comp :instrumentAudioComponents)
+	{
+		if (comp && comp->IsPlaying())
+		{
+			comp->FadeOut(1.f, 0.f);
+		}
+	}
+
+	calculateResults();
+
+	APlayerController* playerController = GetWorld()->GetFirstPlayerController();
+	if (playerController)
+	{
+		playerController->SetInputMode(FInputModeUIOnly());
+		playerController->bShowMouseCursor = true;
+		playerController->DisableInput(playerController);
+	}
+
+	showEndScreenWidget();
+
+}
+
+void ARhythmGameModeBase::updateInstrumentLayers()
+{
+	for (int i = 0; i < instrumentAudioComponents.Num(); i++)
+	{
+		if (!instrumentAudioComponents[i])
+		{
+			continue;
+		}
+
+		bool shouldBeActive = instrumentAccuracyThresholds.IsValidIndex(i) && averageAccuracy >= instrumentAccuracyThresholds[i];
+
+		if (shouldBeActive && !instrumentActive[i])
+		{
+			instrumentAudioComponents[i]->FadeIn(instrumentFadeDuration, 1.0f);
+			instrumentActive[i] = true;
+
+			UE_LOG(LogTemp, Log, TEXT("Instrument %d enabled (Accuracy: %.3f >= %.3f)"), i, averageAccuracy, instrumentAccuracyThresholds[i]);
+		}
+		else if(!shouldBeActive && instrumentActive[i])
+		{
+			instrumentAudioComponents[i]->FadeOut(instrumentFadeDuration, 0.0f);
+			instrumentActive[i] = false;
+
+			UE_LOG(LogTemp, Log, TEXT("Instrument %d disabled (Accuracy: %.3f < %.3f)"), i, averageAccuracy, instrumentAccuracyThresholds[i]);
+		}
+	}
+}
+
+void ARhythmGameModeBase::initInstrumentAudioComponents()
+{
+	//Stop sound playing and remoce from actor
+	for (UAudioComponent* comp : instrumentAudioComponents)
+	{
+		if (comp)
+		{
+			comp->Stop();
+			comp->DestroyComponent();
+		}
+	}
+
+	//Clears array
+	instrumentAudioComponents.Empty();
+	instrumentActive.Empty();
+
+	// Create new AudioComponents for each InstrumentSound
+	for (int i = 0; i < instrumentSounds.Num(); ++i)
+	{
+		USoundBase* sound = instrumentSounds[i];
+		if (sound)
+		{
+			UAudioComponent* audioComp = NewObject<UAudioComponent>(this);
+			audioComp->bAutoActivate = false;
+			audioComp->bAutoDestroy = false;
+			audioComp->RegisterComponent();
+			audioComp->SetSound(sound);
+
+			if (i == 0)
+			{
+				//Start full volume
+				audioComp->SetVolumeMultiplier(1.f);
+				audioComp->Play();
+				instrumentActive.Add(true);
+				audioComp->OnAudioFinished.AddDynamic(this, &ARhythmGameModeBase::onSongAudioFinished);
+			}
+			else
+			{
+				//Start muted for sync
+				audioComp->SetVolumeMultiplier(0.f);
+				audioComp->Play();
+				instrumentActive.Add(false);
+			}
+
+			instrumentAudioComponents.Add(audioComp);
+
+		}
+		else
+		{
+			instrumentAudioComponents.Add(nullptr);
+			instrumentActive.Add(false);
+		}
+	}
+}
+
+void ARhythmGameModeBase::calculateResults()
+{
+	int32 numNotes = 0;
+	if (currentSongDataTable)
+	{
+		numNotes = currentSongDataTable->GetRowNames().Num();
+	}
+
+	int32 maxScore = (numNotes * baseScorePerNote) + (10 * (numNotes * (numNotes + 1) / 2));
+
+	// Difficulty factors
+	float speedFactor = FMath::Clamp(noteSpeed / 500.f, 0.f, 0.2f);
+	float passThreshold = FMath::Clamp(0.6f + speedFactor, 0.6f, 0.8f);
+
+	// Combine multipliers for passing score
+	int32 passingScore = FMath::RoundToInt(maxScore * passThreshold);
+
+	UE_LOG(LogTemp, Log, TEXT("Score needed: %i"), passingScore);
+
+	UE_LOG(LogTemp, Log, TEXT("Avg accuracy: %f"), averageAccuracy);
+
+	passed = (score >= passingScore);
+
+	if (averageAccuracy >= 0.95f)
+	{
+		grade = TEXT("S");
+	}
+	else if (averageAccuracy >= 0.90f)
+	{
+		grade = TEXT("A");
+	}
+	else if (averageAccuracy >= 0.80f)
+	{
+		grade = TEXT("B");
+	}
+	else if (averageAccuracy >= 0.70f)
+	{
+		grade = TEXT("C");
+	}
+	else if (averageAccuracy >= 0.60f)
+	{
+		grade = TEXT("D");
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("startSong: currentSongAudio is null, no music played"));
+		grade = TEXT("F");
 	}
 }
 
@@ -147,26 +336,31 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 		if (songDataAsset)
 		{
 			currentSongDataAsset = songDataAsset;
+			instrumentSounds = songDataAsset->instrumentSounds;
 			currentSongDataTable = songDataAsset->noteDataTable;
-			currentSongAudio = songDataAsset->songAudio;
 			noteSpeed = songDataAsset->noteSpeed;
 			bpm = songDataAsset->bpm;
 
+			instrumentAudioComponents.Empty();
+			instrumentActive.Empty();
+
 			float baseWindow = 0.1f;
-			float scalingFactor = 0.0001f;
+			float scalingFactor = 0.0005f;
 			float minWindow = 0.1f;
-			float maxWindow = 0.5f;
+			float maxWindow = 1.f;
 
 			timingWindow = FMath::Clamp(baseWindow + (noteSpeed * scalingFactor), minWindow, maxWindow);
 
 			UE_LOG(LogTemp, Log, TEXT("Timing window initialized to %.3f"), timingWindow);
+
+			UE_LOG(LogTemp, Log, TEXT("Loaded %d instrument sounds for level %s"), instrumentSounds.Num(), *levelName.ToString());
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("SongDataAsset is null for level '%s'"), *levelName.ToString());
 			currentSongDataAsset = nullptr;
 			currentSongDataTable = nullptr;
-			currentSongAudio = nullptr;
+			instrumentSounds.Empty();
 			noteSpeed = 0;
 			bpm = 0;
 			leadTime = 0;
@@ -177,7 +371,7 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 		UE_LOG(LogTemp, Warning, TEXT("No song data asset found for level '%s'"), *levelName.ToString());
 		currentSongDataAsset = nullptr;
 		currentSongDataTable = nullptr;
-		currentSongAudio = nullptr;
+		instrumentSounds.Empty();
 		noteSpeed = 0;
 		bpm = 0;
 		leadTime = 0;

@@ -5,12 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Engine/DataTable.h"
+#include "Blueprint/UserWidget.h"
 #include "TimerManager.h"
 #include "NoteTypes.h"
 #include "Sound/SoundBase.h"
 #include "NoteInputHandling.h"
 #include "NoteSpawnManager.h"
 #include "SongDataAsset.h"
+#include "Components/AudioComponent.h"
 #include "RhythmGameModeBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -48,6 +50,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category =  "Song")
 	TSubclassOf<class ANoteActor> noteActorClass;
 
+	UPROPERTY()
+	TArray<UAudioComponent*> instrumentAudioComponents;
+
+	// Instrument audio assets to assign in editor
+	UPROPERTY(EditAnywhere, Category = "Song")
+	TArray<USoundBase*> instrumentSounds;
+
+	// Accuracy thresholds per instrument
+	UPROPERTY(EditAnywhere, Category = "Song")
+	TArray<float> instrumentAccuracyThresholds;
+
+	// Track active instruments
+	UPROPERTY()
+	TArray<bool> instrumentActive;
+
+	UPROPERTY(EditAnywhere, Category = "Song")
+	float instrumentFadeDuration;
+
 	//Note speed (units per sec)
 	UPROPERTY(BlueprintReadWrite, Category = "Song")
 	float noteSpeed;
@@ -60,6 +80,21 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 combo;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 highestCombo;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	float averageAccuracy;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 totalHits;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	bool passed;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	FString grade;
+
 	//Distance note has to travel to hit point
 	UPROPERTY(BlueprintReadWrite, Category = "Song")
 	float noteTravelDistance = 400.f;
@@ -71,15 +106,50 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 score;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 perfectHits;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 greatHits;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 goodHits;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
+	int32 misses;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> endScreenWidgetClass;
+
 	int32 nextNoteIndex;
 	
 	float songTime;
+
+	int baseScorePerNote;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song")
 	class ANoteSpawnManager* noteSpawnManager;
 
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void startSong(float inInterval);
+
+	// Called when audio finishes
+	UFUNCTION()
+	void onSongAudioFinished();
+
+	// Call periodically or after each hit
+	UFUNCTION()
+	void updateInstrumentLayers();
+
+	UFUNCTION(BlueprintCallable, Category = "Song")
+	void initInstrumentAudioComponents();
+
+	// Show the end screen widget; Blueprint implement UI logic
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void showEndScreenWidget();
+
+	// Calculation methods, callable from C++ or Blueprint
+	void calculateResults();
 
 protected:
 
@@ -90,10 +160,6 @@ protected:
 	//Song DataTable with note timings/directions
 	UPROPERTY(BlueprintReadOnly, Category = "Song")
 	UDataTable* currentSongDataTable;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Song")
-	USoundBase* currentSongAudio;
-
 
 	UPROPERTY(BlueprintReadWrite, Category = "Song")
 	float timingWindow;

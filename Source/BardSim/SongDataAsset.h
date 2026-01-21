@@ -14,13 +14,14 @@ class BARDSIM_API USongDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
+
+	//Instrument sounds assigned per song asset
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
+	TArray<USoundBase*> instrumentSounds;
+
 	//Data table holding note data for specific song
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
 	UDataTable* noteDataTable;
-	
-	//Audio asset for specific song
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
-	USoundBase* songAudio;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
 	FString songName;
