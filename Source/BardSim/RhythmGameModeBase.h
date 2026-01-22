@@ -16,6 +16,8 @@
 #include "Components/AudioComponent.h"
 #include "RhythmGameModeBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreChanged, int32, newCombo, int32, newScore);
+
 USTRUCT(BlueprintType)
 struct FSongLevelData
 {
@@ -42,6 +44,9 @@ public:
 	
 	virtual void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime) override;
 	virtual float getSongTime_Implementation() const override;
+
+	UPROPERTY(BlueprintAssignable, Category = "UI")
+	FOnScoreChanged onScoreChanged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Progression")
 	URhythmSaveGame* playerSave;
@@ -140,6 +145,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song")
 	class ANoteSpawnManager* noteSpawnManager;
 
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void updateScoreCombo(int32 newCombo, int32 newScore);
+
 	UFUNCTION(BlueprintCallable, Category = "Level Progression")
 	void loadOrCreateSaveGame();
 
@@ -182,6 +190,12 @@ public:
 	//Getter for passed state
 	UFUNCTION(BlueprintCallable, Category = "Level Progression")
 	bool hasPassed();
+
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	bool processEmptyOrExpiredNotes(float currentTime);
+
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	bool processNextNoteInput(ENoteDirection inputDirection, float inputTime);
 
 protected:
 
@@ -232,5 +246,4 @@ private:
 	void registerMiss();
 
 	bool sheetMusicUnlockedThisLevel;
-
 };

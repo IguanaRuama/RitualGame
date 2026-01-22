@@ -398,15 +398,13 @@ bool ARhythmGameModeBase::processNextNoteInput(ENoteDirection inputDirection, fl
 	}
 
 	TArray<FNoteData> noteDataArray = noteSpawnManager->getNoteDataArray();
-
+	FNoteData& currentNote = noteDataArray[nextNoteIndex];
+	UE_LOG(LogTemp, Warning, TEXT("Current Note Time: %f Direction: %d"), currentNote.time, (int32)currentNote.direction);
 
 	if (!noteDataArray.IsValidIndex(nextNoteIndex))
 	{
 		return false;
 	}
-
-	FNoteData& currentNote = noteDataArray[nextNoteIndex];
-	UE_LOG(LogTemp, Warning, TEXT("Current Note Time: %f Direction: %d"), currentNote.time, (int32)currentNote.direction);
 
 	if (currentNote.direction == ENoteDirection::None)
 	{
