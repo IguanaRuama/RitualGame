@@ -26,6 +26,7 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 	totalHits = 0;
 	instrumentFadeDuration = 1.f;
 	instrumentAccuracyThresholds = {0.0f, 0.5f, 0.6f, 0.7f};
+	sheetMusicUnlockedThisLevel = false;
 }
 
 void ARhythmGameModeBase::BeginPlay()
@@ -150,6 +151,63 @@ void ARhythmGameModeBase::registerMiss()
 	misses++;
 }
 
+void ARhythmGameModeBase::loadOrCreateSaveGame()
+{
+	if (UGameplayStatics::DoesSaveGameExist(TEXT("playerProgess"), 0))
+	{
+		playerSave = Cast<URhythmSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("playerProgress"), 0));
+	}
+	else
+	{
+		playerSave = Cast<URhythmSaveGame>(UGameplayStatics::CreateSaveGameObject(URhythmSaveGame::StaticClass()));
+		playerSave->unlockedLevels.Add(TEXT("Level1"));
+		saveGameProgress();
+	}
+}
+
+void ARhythmGameModeBase::saveGameProgress()
+{
+	if (playerSave)
+	{
+		UGameplayStatics::SaveGameToSlot(playerSave, TEXT("playerProgress"), 0);
+	}
+}
+
+void ARhythmGameModeBase::processLevelUnlock(FName& levelName, bool unlockSheetMusic)
+{
+	if (!playerSave)
+		return;
+
+	playerSave->unlockedLevels.Add(levelName);
+
+	int32 currentIndex = levelProgressionOrder.IndexOfByKey(levelName);
+	if (levelProgressionOrder.IsValidIndex(currentIndex + 1))
+	{
+		playerSave->unlockedLevels.Add(levelProgressionOrder[currentIndex + 1]);
+	}
+
+	sheetMusicUnlockedThisLevel = unlockSheetMusic;
+
+	if (unlockSheetMusic)
+	{
+		playerSave->collectedSheetMusic.Add(levelName);
+	}
+
+	saveGameProgress();
+}
+
+
+void ARhythmGameModeBase::handleLevelCompletion(FName& levelName, FString& inGrade, bool inPassed)
+{
+	if (!inPassed || !playerSave)
+	{
+		return;
+	}
+
+	bool unlockSheetMusic = (inGrade == TEXT("A") || inGrade == TEXT("S"));
+	processLevelUnlock(levelName, unlockSheetMusic);
+}
+
 void ARhythmGameModeBase::startSong(float inInterval)
 {
 	songTime = 0.f;
@@ -167,13 +225,13 @@ void ARhythmGameModeBase::startSong(float inInterval)
 
 }
 
-void ARhythmGameModeBase::onSongAudioFinished()
+void ARhythmGameModeBase::onSongAudioFinished_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("Song playback finished"));
 	stopNoteSpawningTimer();
 
 	// Stop all instrument audio components
-	for (UAudioComponent* comp :instrumentAudioComponents)
+	for (UAudioComponent* comp : instrumentAudioComponents)
 	{
 		if (comp && comp->IsPlaying())
 		{
@@ -183,6 +241,8 @@ void ARhythmGameModeBase::onSongAudioFinished()
 
 	calculateResults();
 
+	handleLevelCompletion(currentLevelName, grade, passed);
+
 	APlayerController* playerController = GetWorld()->GetFirstPlayerController();
 	if (playerController)
 	{
@@ -191,7 +251,7 @@ void ARhythmGameModeBase::onSongAudioFinished()
 		playerController->DisableInput(playerController);
 	}
 
-	showEndScreenWidget();
+	//UI In Blueprints
 
 }
 
@@ -280,6 +340,8 @@ void ARhythmGameModeBase::initInstrumentAudioComponents()
 
 void ARhythmGameModeBase::calculateResults()
 {
+	UE_LOG(LogTemp, Log, TEXT("Calculate called"));
+
 	int32 numNotes = 0;
 	if (currentSongDataTable)
 	{
@@ -327,12 +389,35 @@ void ARhythmGameModeBase::calculateResults()
 	}
 }
 
+FName ARhythmGameModeBase::getNextLevelName()
+{
+	int32 currentIndex = levelProgressionOrder.IndexOfByKey(currentLevelName);
+	if (levelProgressionOrder.IsValidIndex(currentIndex + 1))
+	{
+		return levelProgressionOrder[currentIndex + 1];
+	}
+	return NAME_None;
+}
+
+bool ARhythmGameModeBase::wasSheetMusicUnlockedThisRound()
+{
+	return sheetMusicUnlockedThisLevel;
+}
+
+bool ARhythmGameModeBase::hasPassed()
+{
+	return passed;
+}
+
 void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 {
+
+	currentLevelName = levelName;
+
 	//if the level name is correct, load the song from that level
-	if (levelSongMap.Contains(levelName))
+	if (levelSongMap.Contains(currentLevelName))
 	{
-		USongDataAsset* songDataAsset = levelSongMap[levelName];
+		USongDataAsset* songDataAsset = levelSongMap[currentLevelName];
 		if (songDataAsset)
 		{
 			currentSongDataAsset = songDataAsset;
@@ -357,7 +442,7 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("SongDataAsset is null for level '%s'"), *levelName.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("SongDataAsset is null for level '%s'"), *currentLevelName.ToString());
 			currentSongDataAsset = nullptr;
 			currentSongDataTable = nullptr;
 			instrumentSounds.Empty();
@@ -368,7 +453,7 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No song data asset found for level '%s'"), *levelName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("No song data asset found for level '%s'"), *currentLevelName.ToString());
 		currentSongDataAsset = nullptr;
 		currentSongDataTable = nullptr;
 		instrumentSounds.Empty();

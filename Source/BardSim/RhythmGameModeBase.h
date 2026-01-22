@@ -12,6 +12,7 @@
 #include "NoteInputHandling.h"
 #include "NoteSpawnManager.h"
 #include "SongDataAsset.h"
+#include "RhythmSaveGame.h"
 #include "Components/AudioComponent.h"
 #include "RhythmGameModeBase.generated.h"
 
@@ -41,6 +42,15 @@ public:
 	
 	virtual void handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime) override;
 	virtual float getSongTime_Implementation() const override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Progression")
+	URhythmSaveGame* playerSave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Progression")
+	TArray<FName> levelProgressionOrder;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Level Progression")
+	FName currentLevelName;
 
 	//Map level names (FName) to song data
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
@@ -130,12 +140,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song")
 	class ANoteSpawnManager* noteSpawnManager;
 
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	void loadOrCreateSaveGame();
+
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	void saveGameProgress();
+
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	void processLevelUnlock(FName& levelName, bool unlockSheetMusic);
+
+	void handleLevelCompletion(FName& levelName, FString& grade, bool passed);
+
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void startSong(float inInterval);
 
 	// Called when audio finishes
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent, Category = "Song")
 	void onSongAudioFinished();
+	virtual void onSongAudioFinished_Implementation();
 
 	// Call periodically or after each hit
 	UFUNCTION()
@@ -150,6 +172,16 @@ public:
 
 	// Calculation methods, callable from C++ or Blueprint
 	void calculateResults();
+
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	FName getNextLevelName();
+
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	bool wasSheetMusicUnlockedThisRound();
+
+	//Getter for passed state
+	UFUNCTION(BlueprintCallable, Category = "Level Progression")
+	bool hasPassed();
 
 protected:
 
@@ -198,5 +230,7 @@ private:
 
 	//Register a miss (resets combo)
 	void registerMiss();
+
+	bool sheetMusicUnlockedThisLevel;
 
 };
