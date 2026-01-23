@@ -104,55 +104,37 @@ void ARhythmGameModeBase::updateScoreCombo(int32 newCombo, int32 newScore)
 	onScoreChanged.Broadcast(combo, score);
 }
 
-void ARhythmGameModeBase::loadOrCreateSaveGame()
-{
-	if (UGameplayStatics::DoesSaveGameExist(TEXT("playerProgess"), 0))
-	{
-		playerSave = Cast<URhythmSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("playerProgress"), 0));
-	}
-	else
-	{
-		playerSave = Cast<URhythmSaveGame>(UGameplayStatics::CreateSaveGameObject(URhythmSaveGame::StaticClass()));
-		playerSave->unlockedLevels.Add(TEXT("Level1"));
-		saveGameProgress();
-	}
-}
-
-void ARhythmGameModeBase::saveGameProgress()
-{
-	if (playerSave)
-	{
-		UGameplayStatics::SaveGameToSlot(playerSave, TEXT("playerProgress"), 0);
-	}
-}
-
 void ARhythmGameModeBase::processLevelUnlock(FName& levelName, bool unlockSheetMusic)
 {
-	if (!playerSave)
+	URhythmGameInstance* gameInstance = GetGameInstance<URhythmGameInstance>();
+	if (!gameInstance || !(gameInstance->playerSaveGame))
+	{
 		return;
+	}
 
-	playerSave->unlockedLevels.Add(levelName);
+	gameInstance->unlockLevel(levelName);
 
 	int32 currentIndex = levelProgressionOrder.IndexOfByKey(levelName);
 	if (levelProgressionOrder.IsValidIndex(currentIndex + 1))
 	{
-		playerSave->unlockedLevels.Add(levelProgressionOrder[currentIndex + 1]);
+		gameInstance->unlockLevel(levelProgressionOrder[currentIndex + 1]);
 	}
 
 	sheetMusicUnlockedThisLevel = unlockSheetMusic;
 
 	if (unlockSheetMusic)
 	{
-		playerSave->collectedSheetMusic.Add(levelName);
+		gameInstance->collectSheetMusic(levelName);
 	}
 
-	saveGameProgress();
+	gameInstance->saveGameProgress();
 }
 
 
 void ARhythmGameModeBase::handleLevelCompletion(FName& levelName, FString& inGrade, bool inPassed)
 {
-	if (!inPassed || !playerSave)
+	URhythmGameInstance* gameInstance = GetGameInstance<URhythmGameInstance>();
+	if (!inPassed || !(gameInstance->playerSaveGame))
 	{
 		return;
 	}

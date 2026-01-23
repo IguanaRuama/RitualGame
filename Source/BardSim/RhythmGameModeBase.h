@@ -13,6 +13,7 @@
 #include "NoteSpawnManager.h"
 #include "SongDataAsset.h"
 #include "RhythmSaveGame.h"
+#include "RhythmGameInstance.h"
 #include "Components/AudioComponent.h"
 #include "RhythmGameModeBase.generated.h"
 
@@ -47,9 +48,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "UI")
 	FOnScoreChanged onScoreChanged;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Progression")
-	URhythmSaveGame* playerSave;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Progression")
 	TArray<FName> levelProgressionOrder;
@@ -147,12 +145,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void updateScoreCombo(int32 newCombo, int32 newScore);
-
-	UFUNCTION(BlueprintCallable, Category = "Level Progression")
-	void loadOrCreateSaveGame();
-
-	UFUNCTION(BlueprintCallable, Category = "Level Progression")
-	void saveGameProgress();
 
 	UFUNCTION(BlueprintCallable, Category = "Level Progression")
 	void processLevelUnlock(FName& levelName, bool unlockSheetMusic);
