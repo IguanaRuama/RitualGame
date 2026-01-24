@@ -134,23 +134,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> endScreenWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crowd")
-	TSubclassOf<AActor> crowdActorClasses;
-
-	// Spawned crowd actor instances
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crowd")
-	TArray<AActor*> spawnedCrowd;
-
-	// Combo thresholds for crowd presence per part
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crowd")
-	TArray<int32> crowdComboThresholds;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crowd")
-	TArray<AActor*> crowdOnscreenPoints;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crowd")
-	TArray<AActor*> crowdOffscreenPoints;
-
 	int32 nextNoteIndex;
 	
 	float songTime;
@@ -205,12 +188,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Level Progression")
 	bool processNextNoteInput(ENoteDirection inputDirection, float inputTime);
-
-	UFUNCTION(BlueprintCallable, Category = "Game Stats")
-	void updateCrowd(bool comboReset);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Crowd")
-	void startCrowdMove(int32 crowdIndex, FVector targetLocation, FRotator targetRotation);
 
 protected:
 

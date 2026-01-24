@@ -26,7 +26,6 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 	totalHits = 0;
 	instrumentFadeDuration = 1.f;
 	instrumentAccuracyThresholds = {0.0f, 0.5f, 0.6f, 0.7f};
-	crowdComboThresholds = { 1, 2, 3 };
 	sheetMusicUnlockedThisLevel = false;
 }
 
@@ -88,7 +87,6 @@ void ARhythmGameModeBase::registerHit(float accuracy)
 	}
 
 	updateInstrumentLayers();
-	updateCrowd(false);
 }
 
 void ARhythmGameModeBase::registerMiss()
@@ -97,7 +95,6 @@ void ARhythmGameModeBase::registerMiss()
 	misses++;
 
 	updateScoreCombo(combo, score);
-	updateCrowd(true);
 }
 
 void ARhythmGameModeBase::updateScoreCombo(int32 newCombo, int32 newScore)
@@ -430,60 +427,6 @@ bool ARhythmGameModeBase::processNextNoteInput(ENoteDirection inputDirection, fl
 	}
 
 	return false;
-}
-
-void ARhythmGameModeBase::updateCrowd(bool comboReset)
-{
-	int32 numSections = crowdComboThresholds.Num();
-
-	if (spawnedCrowd.Num() != numSections)
-	{
-		spawnedCrowd.SetNumZeroed(numSections);
-	}
-
-	if (comboReset && combo == 0)
-	{
-		// Remove only one crowd section
-		for (int i = numSections - 1; i >= 0; --i)
-		{
-			if (spawnedCrowd.IsValidIndex(i) && spawnedCrowd[i] && crowdOnscreenPoints.IsValidIndex(i) && crowdOnscreenPoints[i] && crowdOffscreenPoints.IsValidIndex(i) && crowdOffscreenPoints[i])
-			{
-				FVector currentLoc = spawnedCrowd[i]->GetActorLocation();
-				FVector onscreenLoc = crowdOnscreenPoints[i]->GetActorLocation();
-
-				if (currentLoc.Equals(onscreenLoc))
-				{
-					spawnedCrowd[i]->SetActorLocation(crowdOffscreenPoints[i]->GetActorLocation());
-					spawnedCrowd[i]->SetActorRotation(crowdOffscreenPoints[i]->GetActorRotation());
-					break;  // only move one currently onscreen
-				}
-			}
-		}
-		return;
-	}
-
-	//Mve crowd parts onscreen/offscreen based on combo thresholds
-	for (int i = 0; i < numSections; ++i)
-	{
-		if (!spawnedCrowd.IsValidIndex(i) || !spawnedCrowd[i])
-		{
-			continue;
-		}
-
-		bool shouldBePresent = combo >= crowdComboThresholds[i];
-
-		if (shouldBePresent)
-		{
-			startCrowdMove(i, crowdOnscreenPoints[i]->GetActorLocation(), crowdOnscreenPoints[i]->GetActorRotation());
-			UE_LOG(LogTemp, Log, TEXT("crowd moving"));
-
-		}
-		else
-		{
-			startCrowdMove(i, crowdOffscreenPoints[i]->GetActorLocation(), crowdOffscreenPoints[i]->GetActorRotation());
-			UE_LOG(LogTemp, Log, TEXT("crowd moving"));
-		}
-	}
 }
 
 void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
