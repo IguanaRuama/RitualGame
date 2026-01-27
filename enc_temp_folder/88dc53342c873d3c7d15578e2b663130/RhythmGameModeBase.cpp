@@ -514,7 +514,7 @@ void ARhythmGameModeBase::unpauseTimers()
 	{
 		if (audioComp)
 		{
-			audioComp->SetPaused(false); // Continues playback
+			audioComp->SetPaused(true); // Pause playback preserving position
 		}
 	}
 }

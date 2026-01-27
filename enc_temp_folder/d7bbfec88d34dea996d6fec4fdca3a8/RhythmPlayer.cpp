@@ -21,7 +21,7 @@ void ARhythmPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Up", IE_Pressed, this, &ARhythmPlayer::onUpPressed);
 	PlayerInputComponent->BindAction("Down", IE_Pressed, this, &ARhythmPlayer::onDownPressed);
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ARhythmPlayer::onRightPressed);
-	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ARhythmPlayer::togglePause).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ARhythmPlayer::togglePause);
 }
 
 void ARhythmPlayer::handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime)
