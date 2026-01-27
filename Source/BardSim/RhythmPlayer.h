@@ -31,6 +31,7 @@ private:
 	void onUpPressed();
 	void onDownPressed();
 	void onRightPressed();
+	void togglePause();
 
 	void handleNoteInput(ENoteDirection direction);
 

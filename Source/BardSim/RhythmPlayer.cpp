@@ -21,6 +21,7 @@ void ARhythmPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Up", IE_Pressed, this, &ARhythmPlayer::onUpPressed);
 	PlayerInputComponent->BindAction("Down", IE_Pressed, this, &ARhythmPlayer::onDownPressed);
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ARhythmPlayer::onRightPressed);
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ARhythmPlayer::togglePause);
 }
 
 void ARhythmPlayer::handleNoteInput_Implementation(ENoteDirection inputDirection, float inputTime)
@@ -53,6 +54,19 @@ void ARhythmPlayer::onDownPressed()
 void ARhythmPlayer::onRightPressed()
 {
 	handleNoteInput(ENoteDirection::Right);
+}
+
+void ARhythmPlayer::togglePause()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	ARhythmGameModeBase* gameMode = Cast<ARhythmGameModeBase>(UGameplayStatics::GetGameMode(world));
+	if (gameMode)
+	{
+		UE_LOG(LogTemp, Display, TEXT("PAUSE TRIGGERING 1"));
+		gameMode->togglePause();
+	}
 }
 
 void ARhythmPlayer::handleNoteInput(ENoteDirection direction)

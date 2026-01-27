@@ -154,13 +154,15 @@ void ARhythmGameModeBase::startSong(float inInterval)
 	goodHits = 0;
 	misses = 0;
 
-	if (instrumentAudioComponents.Num() == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("startSong: no instruments found"));
-	}
-
 	startNoteSpawningTimer(inInterval);
 
+	for (UAudioComponent* audioComp : instrumentAudioComponents)
+	{
+		if (audioComp)
+		{
+			audioComp->Play();  // Full restart
+		}
+	}
 }
 
 void ARhythmGameModeBase::onSongAudioFinished_Implementation()
@@ -453,8 +455,7 @@ void ARhythmGameModeBase::updateCrowd(bool comboReset)
 
 				if (currentLoc.Equals(onscreenLoc))
 				{
-					spawnedCrowd[i]->SetActorLocation(crowdOffscreenPoints[i]->GetActorLocation());
-					spawnedCrowd[i]->SetActorRotation(crowdOffscreenPoints[i]->GetActorRotation());
+					ICrowdMove::Execute_startMove(spawnedCrowd[i], crowdOffscreenPoints[i]->GetActorLocation(), crowdOffscreenPoints[i]->GetActorRotation());
 					break;  // only move one currently onscreen
 				}
 			}
@@ -462,7 +463,7 @@ void ARhythmGameModeBase::updateCrowd(bool comboReset)
 		return;
 	}
 
-	//Mve crowd parts onscreen/offscreen based on combo thresholds
+	//Move crowd parts onscreen/offscreen based on combo thresholds
 	for (int i = 0; i < numSections; ++i)
 	{
 		if (!spawnedCrowd.IsValidIndex(i) || !spawnedCrowd[i])
@@ -472,16 +473,48 @@ void ARhythmGameModeBase::updateCrowd(bool comboReset)
 
 		bool shouldBePresent = combo >= crowdComboThresholds[i];
 
-		if (shouldBePresent)
+		if (spawnedCrowd[i]->GetClass()->ImplementsInterface(UCrowdMove::StaticClass()) && shouldBePresent)
 		{
-			startCrowdMove(i, crowdOnscreenPoints[i]->GetActorLocation(), crowdOnscreenPoints[i]->GetActorRotation());
-			UE_LOG(LogTemp, Log, TEXT("crowd moving"));
-
+			ICrowdMove::Execute_startMove(spawnedCrowd[i], crowdOnscreenPoints[i]->GetActorLocation(), crowdOnscreenPoints[i]->GetActorRotation());
 		}
-		else
+		else if (spawnedCrowd[i]->GetClass()->ImplementsInterface(UCrowdMove::StaticClass()) && !shouldBePresent)
 		{
-			startCrowdMove(i, crowdOffscreenPoints[i]->GetActorLocation(), crowdOffscreenPoints[i]->GetActorRotation());
-			UE_LOG(LogTemp, Log, TEXT("crowd moving"));
+			ICrowdMove::Execute_startMove(spawnedCrowd[i], crowdOffscreenPoints[i]->GetActorLocation(), crowdOffscreenPoints[i]->GetActorRotation());
+		}
+	}
+}
+
+void ARhythmGameModeBase::togglePause_Implementation()
+{
+	bool bIsPaused = UGameplayStatics::IsGamePaused(GetWorld());
+	UGameplayStatics::SetGamePaused(GetWorld(), !bIsPaused);
+}
+
+void ARhythmGameModeBase::pauseTimers()
+{
+	GetWorldTimerManager().PauseTimer(noteSpawnTimerHandle);
+
+	// Fade out all instrument audio components
+	for (UAudioComponent* audioComp : instrumentAudioComponents)
+	{
+		if (audioComp && audioComp->IsPlaying())
+		{
+			audioComp->SetPaused(true); // Pause playback preserving position
+		}
+	}
+}
+
+void ARhythmGameModeBase::unpauseTimers()
+{
+	// Unpause the note spawning timer
+	GetWorldTimerManager().UnPauseTimer(noteSpawnTimerHandle);
+
+	// Fade in all instrument audio components
+	for (UAudioComponent* audioComp : instrumentAudioComponents)
+	{
+		if (audioComp)
+		{
+			audioComp->SetPaused(true); // Pause playback preserving position
 		}
 	}
 }

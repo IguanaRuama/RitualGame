@@ -15,6 +15,7 @@
 #include "RhythmSaveGame.h"
 #include "RhythmGameInstance.h"
 #include "Components/AudioComponent.h"
+#include "CrowdMove.h"
 #include "RhythmGameModeBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreChanged, int32, newCombo, int32, newScore);
@@ -33,7 +34,7 @@ struct FSongLevelData
 
 
 UCLASS(Blueprintable)
-class BARDSIM_API ARhythmGameModeBase : public AGameModeBase, public INoteInputHandling
+class BARDSIM_API ARhythmGameModeBase : public AGameModeBase, public INoteInputHandling, public ICrowdMove
 {
 	GENERATED_BODY()
 
@@ -209,8 +210,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game Stats")
 	void updateCrowd(bool comboReset);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Crowd")
-	void startCrowdMove(int32 crowdIndex, FVector targetLocation, FRotator targetRotation);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pause")
+	void togglePause();
+	virtual void togglePause_Implementation();
+
+	UFUNCTION(BlueprintCallable, Category = "Pause")
+	void pauseTimers();
+
+	UFUNCTION(BlueprintCallable, Category = "Pause")
+	void unpauseTimers();
 
 protected:
 
@@ -252,7 +260,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void stopNoteSpawningTimer();
 
+
 private:
+
+	bool isPaused = false;
 
 	//Register a successful hit with accuraccy (0-1)
 	void registerHit(float accuracy);
