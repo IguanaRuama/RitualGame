@@ -18,6 +18,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	URhythmSaveGame* playerSaveGame;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<FName> levelProgressionOrder;
+
 	UFUNCTION(BlueprintCallable)
 	void loadOrCreateSaveGame();
 
@@ -35,6 +38,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void collectSheetMusic(FName& SheetName);
+
+	UFUNCTION(BlueprintCallable)
+	bool isLevelUnlocked(FName levelName);
 
 	//Override Init to load on game start
 	virtual void Init() override;

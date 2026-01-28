@@ -92,8 +92,16 @@ void URhythmGameInstance::collectSheetMusic(FName& SheetName)
 	}
 }
 
+bool URhythmGameInstance::isLevelUnlocked(FName levelName)
+{
+    return playerSaveGame->unlockedLevels.Contains(levelName);
+}
+
 void URhythmGameInstance::Init()
 {
 	Super::Init();
+
+    levelProgressionOrder = {FName("Level1"), FName("Level2"), FName("Level3")};
+
     loadOrCreateSaveGame();
 }

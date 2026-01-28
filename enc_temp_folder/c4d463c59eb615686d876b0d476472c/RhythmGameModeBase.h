@@ -50,6 +50,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "UI")
 	FOnScoreChanged onScoreChanged;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Progression")
+	TArray<FName> levelProgressionOrder;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Level Progression")
 	FName currentLevelName;
 

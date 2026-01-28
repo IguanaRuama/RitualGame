@@ -117,11 +117,10 @@ void ARhythmGameModeBase::processLevelUnlock(FName& levelName, bool unlockSheetM
 
 	gameInstance->unlockLevel(levelName);
 
-	TArray<FName>& progressionOrder = gameInstance->levelProgressionOrder;
-	int32 currentIndex = progressionOrder.IndexOfByKey(levelName);
-	if (progressionOrder.IsValidIndex(currentIndex + 1))
+	int32 currentIndex = levelProgressionOrder.IndexOfByKey(levelName);
+	if (levelProgressionOrder.IsValidIndex(currentIndex + 1))
 	{
-		gameInstance->unlockLevel(progressionOrder[currentIndex + 1]);
+		gameInstance->unlockLevel(levelProgressionOrder[currentIndex + 1]);
 	}
 
 	sheetMusicUnlockedThisLevel = unlockSheetMusic;
@@ -332,17 +331,10 @@ void ARhythmGameModeBase::calculateResults()
 
 FName ARhythmGameModeBase::getNextLevelName()
 {
-	URhythmGameInstance* gameInstance = GetGameInstance<URhythmGameInstance>();
-	if (!gameInstance)
+	int32 currentIndex = levelProgressionOrder.IndexOfByKey(currentLevelName);
+	if (levelProgressionOrder.IsValidIndex(currentIndex + 1))
 	{
-		return NAME_None;
-	}
-
-	TArray<FName>& progressionOrder = gameInstance->levelProgressionOrder;
-	int32 currentIndex = progressionOrder.IndexOfByKey(currentLevelName);
-	if (progressionOrder.IsValidIndex(currentIndex + 1))
-	{
-		return progressionOrder[currentIndex + 1];
+		return levelProgressionOrder[currentIndex + 1];
 	}
 	return NAME_None;
 }
