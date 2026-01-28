@@ -97,6 +97,19 @@ bool URhythmGameInstance::isLevelUnlocked(FName levelName)
     return playerSaveGame->unlockedLevels.Contains(levelName);
 }
 
+bool URhythmGameInstance::allSheetsCollected()
+{
+    for (FName& sheetName : levelProgressionOrder)
+    {
+        if (!(playerSaveGame->collectedSheetMusic.Contains(sheetName)))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void URhythmGameInstance::Init()
 {
 	Super::Init();

@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool isLevelUnlocked(FName levelName);
 
+	UFUNCTION(BlueprintCallable)
+	bool allSheetsCollected();
+
 	//Override Init to load on game start
 	virtual void Init() override;
 	
