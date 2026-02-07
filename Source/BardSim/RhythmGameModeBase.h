@@ -101,15 +101,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	FString grade;
-
-	//Distance note has to travel to hit point
-	UPROPERTY(BlueprintReadWrite, Category = "Song")
-	float noteTravelDistance = 400.f;
-
-	//Time the note must spawn to have room to lead down screen
-	UPROPERTY(BlueprintReadWrite, Category = "Song")
-	float leadTime;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 score;
 

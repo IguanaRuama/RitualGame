@@ -17,7 +17,6 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 	score = 0;
 	nextNoteIndex = 0;
 	songTime = 0.f;
-	leadTime = noteTravelDistance / noteSpeed;
 	highestCombo = 0;
 	averageAccuracy = 0;
 	passed = false;
@@ -97,7 +96,7 @@ void ARhythmGameModeBase::registerMiss()
 	misses++;
 	totalHits++;
 
-	float missAccuracy = 1.0f;
+	float missAccuracy = 0.0f;
 
 	averageAccuracy = ((averageAccuracy * (totalHits - 1)) + missAccuracy) / totalHits;
 
@@ -163,11 +162,31 @@ void ARhythmGameModeBase::startSong(float inInterval)
 
 	startNoteSpawningTimer(inInterval);
 
-	for (UAudioComponent* audioComp : instrumentAudioComponents)
+	for (int i = 0; i < instrumentAudioComponents.Num(); ++i)
 	{
+		UAudioComponent* audioComp = instrumentAudioComponents[i];
 		if (audioComp)
 		{
-			audioComp->Play();  // Full restart
+			float desiredVolume;
+
+			if (instrumentActive.IsValidIndex(i) && instrumentActive[i])
+			{
+				desiredVolume = 1.0f;
+			}
+			else
+			{
+				desiredVolume = 0.0f;
+			}
+
+			audioComp->SetVolumeMultiplier(desiredVolume);
+
+			// Play if not already playing to ensure synced playback
+			if (!audioComp->IsPlaying())
+			{
+				audioComp->Play();
+
+				UE_LOG(LogTemp, Log, TEXT("INSTRUMENT PLAYING"));
+			}
 		}
 	}
 }
@@ -215,14 +234,14 @@ void ARhythmGameModeBase::updateInstrumentLayers()
 
 		if (shouldBeActive && !instrumentActive[i])
 		{
-			instrumentAudioComponents[i]->FadeIn(instrumentFadeDuration, 1.0f);
+			instrumentAudioComponents[i]->SetVolumeMultiplier(1.0f);
 			instrumentActive[i] = true;
 
 			UE_LOG(LogTemp, Log, TEXT("Instrument %d enabled (Accuracy: %.3f >= %.3f)"), i, averageAccuracy, instrumentAccuracyThresholds[i]);
 		}
 		else if(!shouldBeActive && instrumentActive[i])
 		{
-			instrumentAudioComponents[i]->FadeOut(instrumentFadeDuration, 0.0f);
+			instrumentAudioComponents[i]->SetVolumeMultiplier(0.0f);
 			instrumentActive[i] = false;
 
 			UE_LOG(LogTemp, Log, TEXT("Instrument %d disabled (Accuracy: %.3f < %.3f)"), i, averageAccuracy, instrumentAccuracyThresholds[i]);
@@ -407,41 +426,33 @@ bool ARhythmGameModeBase::processNextNoteInput(ENoteDirection inputDirection, fl
 	}
 
 	FNoteData& currentNote = noteDataArray[nextNoteIndex];
-	UE_LOG(LogTemp, Warning, TEXT("Current Note Time: %f Direction: %d"), currentNote.time, (int32)currentNote.direction);
+	float noteTime = currentNote.time;
 
-	if (currentNote.direction == ENoteDirection::None)
+	// Ignore input if it's too early (before timing window)
+	if (inputTime < noteTime - timingWindow)
 	{
-		++nextNoteIndex;
 		return false;
 	}
 
-	float timeDiff = inputTime - currentNote.time;
-
-	if (timeDiff < -timingWindow)
-	{
-		registerMiss();
-		return true;
-	}
-
-	if (FMath::Abs(timeDiff) <= timingWindow)
+	// Input within timing window
+	if (FMath::Abs(inputTime - noteTime) <= timingWindow)
 	{
 		if (currentNote.direction == inputDirection)
 		{
-			float accuracy = FMath::Abs(timeDiff) / timingWindow;
+			float accuracy = FMath::Abs(inputTime - noteTime) / timingWindow;
 			registerHit(accuracy);
 			++nextNoteIndex;
 		}
 		else
 		{
-			registerMiss();
+			registerMiss(); // Wrong direction inside timing window
 		}
 		return true;
 	}
 
-	if (timeDiff > timingWindow)
+	// Input too late after timing window, ignore
+	if (inputTime > noteTime + timingWindow)
 	{
-		registerMiss();
-		++nextNoteIndex;
 		return false;
 	}
 
@@ -569,7 +580,6 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 		instrumentSounds.Empty();
 		noteSpeed = 0;
 		bpm = 0;
-		leadTime = 0;
 	}
 }
 
