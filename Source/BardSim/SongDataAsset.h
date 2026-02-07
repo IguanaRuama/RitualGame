@@ -23,13 +23,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
 	UDataTable* noteDataTable;
 
+	//Song name for display purposes
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
 	FString songName;
 
-	//potential use for animations
+	//Potential use for animations
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
 	float bpm = 0;
 
+	//Note speed for song, adjustable for each level
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Song Data")
 	float noteSpeed = 0;
 };

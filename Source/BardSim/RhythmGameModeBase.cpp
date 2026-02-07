@@ -95,9 +95,15 @@ void ARhythmGameModeBase::registerMiss()
 {
 	combo = 0;
 	misses++;
+	totalHits++;
+
+	float missAccuracy = 1.0f;
+
+	averageAccuracy = ((averageAccuracy * (totalHits - 1)) + missAccuracy) / totalHits;
 
 	updateScoreCombo(combo, score);
 	updateCrowd(true);
+	updateInstrumentLayers();
 }
 
 void ARhythmGameModeBase::updateScoreCombo(int32 newCombo, int32 newScore)
@@ -532,46 +538,32 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 
 	currentLevelName = levelName;
 
-	//if the level name is correct, load the song from that level
-	if (levelSongMap.Contains(currentLevelName))
+	USongDataAsset* songDataAsset = noteSpawnManager->currentSongDataAsset;
+	if (songDataAsset)
 	{
-		USongDataAsset* songDataAsset = levelSongMap[currentLevelName];
-		if (songDataAsset)
-		{
-			currentSongDataAsset = songDataAsset;
-			instrumentSounds = songDataAsset->instrumentSounds;
-			currentSongDataTable = songDataAsset->noteDataTable;
-			noteSpeed = songDataAsset->noteSpeed;
-			bpm = songDataAsset->bpm;
+		currentSongDataAsset = songDataAsset;
+		instrumentSounds = songDataAsset->instrumentSounds;
+		currentSongDataTable = songDataAsset->noteDataTable;
+		noteSpeed = songDataAsset->noteSpeed;
+		bpm = songDataAsset->bpm;
 
-			instrumentAudioComponents.Empty();
-			instrumentActive.Empty();
+		instrumentAudioComponents.Empty();
+		instrumentActive.Empty();
 
-			float baseWindow = 0.1f;
-			float scalingFactor = 0.0005f;
-			float minWindow = 0.1f;
-			float maxWindow = 1.f;
+		float baseWindow = 0.1f;
+		float scalingFactor = 0.0005f;
+		float minWindow = 0.1f;
+		float maxWindow = 1.f;
 
-			timingWindow = FMath::Clamp(baseWindow + (noteSpeed * scalingFactor), minWindow, maxWindow);
+		timingWindow = FMath::Clamp(baseWindow + (noteSpeed * scalingFactor), minWindow, maxWindow);
 
-			UE_LOG(LogTemp, Log, TEXT("Timing window initialized to %.3f"), timingWindow);
+		UE_LOG(LogTemp, Log, TEXT("Timing window initialized to %.3f"), timingWindow);
 
-			UE_LOG(LogTemp, Log, TEXT("Loaded %d instrument sounds for level %s"), instrumentSounds.Num(), *levelName.ToString());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SongDataAsset is null for level '%s'"), *currentLevelName.ToString());
-			currentSongDataAsset = nullptr;
-			currentSongDataTable = nullptr;
-			instrumentSounds.Empty();
-			noteSpeed = 0;
-			bpm = 0;
-			leadTime = 0;
-		}
+		UE_LOG(LogTemp, Log, TEXT("Loaded %d instrument sounds for level %s"), instrumentSounds.Num(), *levelName.ToString());
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No song data asset found for level '%s'"), *currentLevelName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("SongDataAsset is null for level '%s'"), *currentLevelName.ToString());
 		currentSongDataAsset = nullptr;
 		currentSongDataTable = nullptr;
 		instrumentSounds.Empty();

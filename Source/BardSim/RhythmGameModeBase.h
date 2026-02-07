@@ -52,10 +52,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Level Progression")
 	FName currentLevelName;
-
-	//Map level names (FName) to song data
-	UPROPERTY(EditDefaultsOnly, Category = "Song")
-	TMap<FName, USongDataAsset*> levelSongMap;
 	
 	//Note to be spawned, limited only to note actor class
 	UPROPERTY(EditDefaultsOnly, Category =  "Song")
