@@ -385,11 +385,11 @@ bool ARhythmGameModeBase::hasPassed()
 bool ARhythmGameModeBase::processEmptyOrExpiredNotes(float currentTime)
 {
 	bool anyMiss = false;
-	TArray<FNoteData> noteDataArray = noteSpawnManager->getNoteDataArray();
+	const TArray<FNoteData>& noteDataArray = noteSpawnManager->getNoteDataArray();
 
 	while (noteDataArray.IsValidIndex(nextNoteIndex))
 	{
-		FNoteData& note = noteDataArray[nextNoteIndex];
+		const FNoteData& note = noteDataArray[nextNoteIndex];
 		if (note.direction == ENoteDirection::None)
 		{
 			++nextNoteIndex;
@@ -417,7 +417,7 @@ bool ARhythmGameModeBase::processNextNoteInput(ENoteDirection inputDirection, fl
 		return false;
 	}
 
-	TArray<FNoteData> noteDataArray = noteSpawnManager->getNoteDataArray();
+	const TArray<FNoteData>& noteDataArray = noteSpawnManager->getNoteDataArray();
 
 
 	if (!noteDataArray.IsValidIndex(nextNoteIndex))
@@ -425,7 +425,7 @@ bool ARhythmGameModeBase::processNextNoteInput(ENoteDirection inputDirection, fl
 		return false;
 	}
 
-	FNoteData& currentNote = noteDataArray[nextNoteIndex];
+	const FNoteData& currentNote = noteDataArray[nextNoteIndex];
 	float noteTime = currentNote.time;
 
 	// Ignore input if it's too early (before timing window)

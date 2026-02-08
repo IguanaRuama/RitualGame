@@ -45,12 +45,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool allSheetsCollected();
 
-	UFUNCTION(BlueprintCallable)
-	void resetSaveGame();
-
-	UFUNCTION(BlueprintCallable)
-	bool doesSaveGameExist() const;
-
 	//Override Init to load on game start
 	virtual void Init() override;
 	

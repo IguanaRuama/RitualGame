@@ -231,7 +231,7 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 
 		if (noteSpeed > 0.f)
 		{
-			spawnToHitTime = FVector::Dist(spawnLocation, hitLocation) / noteSpeed;
+			spawnToHitTime = leadTime;
 			hitToEndTime = FVector::Dist(hitLocation, endLocation) / noteSpeed;
 		}
 
@@ -248,9 +248,9 @@ void ANoteSpawnManager::spawnNote(FNoteData noteData)
 	}
 }
 
-TArray<FNoteData> ANoteSpawnManager::getNoteDataArray()
+const TArray<FNoteData>& ANoteSpawnManager::getNoteDataArray() const
 {
-	return noteDataArray;
+	return noteDataArray; 
 }
 
 

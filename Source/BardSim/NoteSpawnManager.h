@@ -82,7 +82,7 @@ public:
 	ANoteActor* getPooledNote();
 
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")
-	TArray<FNoteData> getNoteDataArray();
+	const TArray<FNoteData>& getNoteDataArray() const;
 
 	//spawn note from pool
 	UFUNCTION(BlueprintCallable, Category = "Note Spawning")

@@ -110,36 +110,6 @@ bool URhythmGameInstance::allSheetsCollected()
     return true;
 }
 
-void URhythmGameInstance::resetSaveGame()
-{
-    FString slotName = TEXT("playerProgress");
-    int32 userIndex = 0;
-
-    //Delete existing save slot
-    bool bDeleted = UGameplayStatics::DeleteGameInSlot(slotName, userIndex);
-
-    //Create new save game object
-    playerSaveGame = Cast<URhythmSaveGame>(UGameplayStatics::CreateSaveGameObject(URhythmSaveGame::StaticClass()));
-    if (playerSaveGame)
-    {
-        //Initialise default data
-        playerSaveGame->unlockedLevels.Empty();
-        playerSaveGame->unlockedLevels.Add(TEXT("Level1"));
-        playerSaveGame->collectedSheetMusic.Empty();
-
-        //Save new data
-        bool bSaved = UGameplayStatics::SaveGameToSlot(playerSaveGame, slotName, userIndex);
-    }
-}
-
-bool URhythmGameInstance::doesSaveGameExist() const
-{
-    FString slotName = TEXT("playerProgress");
-    int32 userIndex = 0;
-
-    return UGameplayStatics::DoesSaveGameExist(slotName, userIndex);
-}
-
 void URhythmGameInstance::Init()
 {
 	Super::Init();
