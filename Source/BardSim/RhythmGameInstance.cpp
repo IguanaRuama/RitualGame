@@ -118,6 +118,8 @@ void URhythmGameInstance::resetSaveGame()
     //Delete existing save slot
     bool bDeleted = UGameplayStatics::DeleteGameInSlot(slotName, userIndex);
 
+    UE_LOG(LogTemp, Log, TEXT("SAVE DELETED"));
+
     //Create new save game object
     playerSaveGame = Cast<URhythmSaveGame>(UGameplayStatics::CreateSaveGameObject(URhythmSaveGame::StaticClass()));
     if (playerSaveGame)

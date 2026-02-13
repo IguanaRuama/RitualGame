@@ -23,9 +23,8 @@ ARhythmGameModeBase::ARhythmGameModeBase()
 	grade = TEXT("F");
 	baseScorePerNote = 100;
 	totalHits = 0;
-	instrumentFadeDuration = 1.f;
 	instrumentAccuracyThresholds = {0.0f, 0.5f, 0.6f, 0.7f};
-	crowdComboThresholds = { 1, 2, 3 };
+	crowdComboThresholds = { 10, 30, 60 };
 	sheetMusicUnlockedThisLevel = false;
 }
 
@@ -314,11 +313,11 @@ void ARhythmGameModeBase::calculateResults()
 		numNotes = currentSongDataTable->GetRowNames().Num();
 	}
 
-	int32 maxScore = (numNotes * baseScorePerNote) + (10 * (numNotes * (numNotes + 1) / 2));
+	int32 maxScore = (numNotes * baseScorePerNote) + 10 * (numNotes * (numNotes + 1) / 2);
 
 	// Difficulty factors
-	float speedFactor = FMath::Clamp(noteSpeed / 500.f, 0.f, 0.2f);
-	float passThreshold = FMath::Clamp(0.6f + speedFactor, 0.6f, 0.8f);
+	float speedFactor = FMath::Clamp(noteSpeed / 1500.f, 0.f, 0.3f);
+	float passThreshold = FMath::Clamp(0.5f + speedFactor, 0.5f, 0.8f);
 
 	// Combine multipliers for passing score
 	int32 passingScore = FMath::RoundToInt(maxScore * passThreshold);
@@ -546,7 +545,6 @@ void ARhythmGameModeBase::unpauseTimers()
 
 void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 {
-
 	currentLevelName = levelName;
 
 	USongDataAsset* songDataAsset = noteSpawnManager->currentSongDataAsset;
@@ -562,9 +560,9 @@ void ARhythmGameModeBase::loadSongForLevel(const FName& levelName)
 		instrumentActive.Empty();
 
 		float baseWindow = 0.1f;
-		float scalingFactor = 0.0005f;
+		float scalingFactor = 0.0015f;
 		float minWindow = 0.1f;
-		float maxWindow = 1.f;
+		float maxWindow = 0.5f;
 
 		timingWindow = FMath::Clamp(baseWindow + (noteSpeed * scalingFactor), minWindow, maxWindow);
 
@@ -622,7 +620,7 @@ ACameraActor* ARhythmGameModeBase::findCamera()
 void ARhythmGameModeBase::processNoteSpawningTimer()
 {
 	songTime += noteSpawningInterval;
-
+	
 	if (noteSpawnManager)
 	{
 		float currentSongTime = songTime;
