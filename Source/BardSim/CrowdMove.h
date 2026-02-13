@@ -18,6 +18,8 @@ class BARDSIM_API ICrowdMove
 	GENERATED_BODY()
 
 public:
+
+	//crowd move logic
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Crowd")
 	void startMove(FVector targetLocation, FRotator targetRotation);
 };

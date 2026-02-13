@@ -21,10 +21,12 @@ struct FNoteData : public FTableRowBase
 {
 	GENERATED_BODY()
 
+	//The direction of the note
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ENoteDirection direction; //The direction of the note
+	ENoteDirection direction;
 
+	//Set time (in seconds) the note comes in at
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float time; //Set time (in seconds) the note comes in at
+	float time;
 };
 

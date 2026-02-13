@@ -20,6 +20,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* mesh;
+
 	//Timer handle for note life duration
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FTimerHandle movementTimerHandle;

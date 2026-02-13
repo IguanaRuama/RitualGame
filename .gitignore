@@ -72,3 +72,9 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+Windows/BardSim/Binaries/Win64/BardSim.pdb
+Windows/BardSim/Content/Paks/BardSim-Windows.pak
+Windows/BardSim/Content/Paks/BardSim-Windows.ucas
+Windows/BardSim/Content/Paks/BardSim-Windows.utoc
+Windows/BardSim/Content/Paks/global.ucas
+Windows/BardSim/Content/Paks/global.utoc

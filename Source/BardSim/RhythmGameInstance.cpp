@@ -22,7 +22,7 @@ void URhythmGameInstance::loadOrCreateSaveGame()
             UE_LOG(LogTemp, Warning, TEXT("Failed to load SaveGame. Creating new one."));
             playerSaveGame = Cast<URhythmSaveGame>(UGameplayStatics::CreateSaveGameObject(URhythmSaveGame::StaticClass()));
 
-            //new game starts with level1 unlocked
+            //New game starts with level1 unlocked
             playerSaveGame->unlockedLevels.Add(TEXT("Level1"));
 
             saveGameProgress();
@@ -33,7 +33,7 @@ void URhythmGameInstance::loadOrCreateSaveGame()
         playerSaveGame = Cast<URhythmSaveGame>(UGameplayStatics::CreateSaveGameObject(URhythmSaveGame::StaticClass()));
         if(playerSaveGame)
         {
-            // Optional: Initialize default unlocked levels
+            playerSaveGame->unlockedLevels.Empty();
             playerSaveGame->unlockedLevels.Add(TEXT("Level1"));
             saveGameProgress();
         }
@@ -124,12 +124,10 @@ void URhythmGameInstance::resetSaveGame()
     playerSaveGame = Cast<URhythmSaveGame>(UGameplayStatics::CreateSaveGameObject(URhythmSaveGame::StaticClass()));
     if (playerSaveGame)
     {
-        //Initialise default data
         playerSaveGame->unlockedLevels.Empty();
         playerSaveGame->unlockedLevels.Add(TEXT("Level1"));
         playerSaveGame->collectedSheetMusic.Empty();
 
-        //Save new data
         bool bSaved = UGameplayStatics::SaveGameToSlot(playerSaveGame, slotName, userIndex);
     }
 }

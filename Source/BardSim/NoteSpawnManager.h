@@ -54,7 +54,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
 	int32 poolSize;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Spawning")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Note Positions")
 	FVector poolLocation;
 
 	// Gets average distance for all directions

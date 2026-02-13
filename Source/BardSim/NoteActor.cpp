@@ -11,11 +11,10 @@ ANoteActor::ANoteActor()
 
 	SetActorEnableCollision(false);
 
-	//Make mesh and sets as a parent for others
-	UStaticMeshComponent* Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	RootComponent = Mesh;
-
 	movementTickInterval = 0.01f;
+
+	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	RootComponent =mesh;
 
 }
 
@@ -39,6 +38,27 @@ void ANoteActor::initNote(ENoteDirection inDirection, float inSpeed, float inLea
 	//sets spawn location for the note depending on its direction
 	SetActorLocation(startLocation);
 	SetActorHiddenInGame(false);
+
+	if(direction == ENoteDirection::Left)
+	{
+		mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	}
+	else if (direction == ENoteDirection::Right)
+	{
+		mesh->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
+	}
+	else if (direction == ENoteDirection::Up)
+	{
+		mesh->SetRelativeRotation(FRotator(0.f, 0, 0.f));
+	}
+	else if (direction == ENoteDirection::Down)
+	{
+		mesh->SetRelativeRotation(FRotator(0.f, -180, 0.f));
+	}
+	else
+	{
+		mesh->SetRelativeRotation(FRotator::ZeroRotator);
+	}
 
 	if(GetWorld())
 	{

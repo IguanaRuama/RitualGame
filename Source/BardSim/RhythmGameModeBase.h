@@ -64,26 +64,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Song")
 	TArray<USoundBase*> instrumentSounds;
 
-	// Accuracy thresholds per instrument
 	UPROPERTY(EditAnywhere, Category = "Song")
 	TArray<float> instrumentAccuracyThresholds;
 
-	// Track active instruments
 	UPROPERTY()
 	TArray<bool> instrumentActive;
 
 	UPROPERTY(EditAnywhere, Category = "Song")
 	float instrumentFadeDuration;
 
-	//Note speed (units per sec)
 	UPROPERTY(BlueprintReadWrite, Category = "Song")
 	float noteSpeed;
 
-	//Note speed (units per sec)
 	UPROPERTY(EditDefaultsOnly, Category = "Song")
 	float bpm;
 
-	//Current score and combo
 	UPROPERTY(BlueprintReadOnly, Category = "Game Stats")
 	int32 combo;
 
@@ -122,11 +117,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crowd")
 	TSubclassOf<AActor> crowdActorClasses;
 
-	// Spawned crowd actor instances
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crowd")
 	TArray<AActor*> spawnedCrowd;
 
-	// Combo thresholds for crowd presence per part
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crowd")
 	TArray<int32> crowdComboThresholds;
 
@@ -156,7 +150,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void startSong(float inInterval);
 
-	// Called when audio finishes
 	UFUNCTION(BlueprintNativeEvent, Category = "Song")
 	void onSongAudioFinished();
 	virtual void onSongAudioFinished_Implementation();
@@ -168,11 +161,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void initInstrumentAudioComponents();
 
-	// Show the end screen widget; Blueprint implement UI logic
+	// Show the end screen widget- Blueprint implement UI
 	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
 	void showEndScreenWidget();
 
-	// Calculation methods, callable from C++ or Blueprint
 	void calculateResults();
 
 	UFUNCTION(BlueprintCallable, Category = "Level Progression")
@@ -181,7 +173,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Level Progression")
 	bool wasSheetMusicUnlockedThisRound();
 
-	//Getter for passed state
 	UFUNCTION(BlueprintCallable, Category = "Level Progression")
 	bool hasPassed();
 

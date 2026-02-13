@@ -87,7 +87,6 @@ void ARhythmPlayer::handleNoteInput(ENoteDirection direction)
 		//Forward direction and InputTime to GameMode
 		INoteInputHandling::Execute_handleNoteInput(gameMode, direction, inputTime);
 
-		//ERROR CHECKING
 		UE_LOG(LogTemp, Log, TEXT("Forwared input direction %d with time %f to GameMode"), (int32)direction, inputTime);
 	}
 

@@ -250,7 +250,7 @@ void ARhythmGameModeBase::updateInstrumentLayers()
 
 void ARhythmGameModeBase::initInstrumentAudioComponents()
 {
-	//Stop sound playing and remoce from actor
+	//Stop sound playing and remove from actor
 	for (UAudioComponent* comp : instrumentAudioComponents)
 	{
 		if (comp)
@@ -315,11 +315,11 @@ void ARhythmGameModeBase::calculateResults()
 
 	int32 maxScore = (numNotes * baseScorePerNote) + 10 * (numNotes * (numNotes + 1) / 2);
 
-	// Difficulty factors
+	//Difficulty factors
 	float speedFactor = FMath::Clamp(noteSpeed / 1500.f, 0.f, 0.3f);
 	float passThreshold = FMath::Clamp(0.5f + speedFactor, 0.5f, 0.8f);
 
-	// Combine multipliers for passing score
+	//Combine multipliers for passing score
 	int32 passingScore = FMath::RoundToInt(maxScore * passThreshold);
 
 	UE_LOG(LogTemp, Log, TEXT("Score needed: %i"), passingScore);
@@ -479,8 +479,9 @@ void ARhythmGameModeBase::updateCrowd(bool comboReset)
 
 				if (currentLoc.Equals(onscreenLoc))
 				{
+					//only move one currently onscreen
 					ICrowdMove::Execute_startMove(spawnedCrowd[i], crowdOffscreenPoints[i]->GetActorLocation(), crowdOffscreenPoints[i]->GetActorRotation());
-					break;  // only move one currently onscreen
+					break;  
 				}
 			}
 		}
@@ -523,7 +524,7 @@ void ARhythmGameModeBase::pauseTimers()
 	{
 		if (audioComp && audioComp->IsPlaying())
 		{
-			audioComp->SetPaused(true); // Pause playback preserving position
+			audioComp->SetPaused(true); //Pause playback preserving position
 		}
 	}
 }
@@ -538,7 +539,7 @@ void ARhythmGameModeBase::unpauseTimers()
 	{
 		if (audioComp)
 		{
-			audioComp->SetPaused(false); // Continues playback
+			audioComp->SetPaused(false); //Continues playback
 		}
 	}
 }
@@ -592,8 +593,8 @@ ANoteSpawnManager* ARhythmGameModeBase::findNoteSpawnManager()
 		return nullptr;
 	}
 
-	//makes iterator that loops through spawn managers and creates a pointer to the current actor
-	//only loops once as only one manager is spawned
+	//Loops through spawn managers and creates a pointer to the current actor
+	//Only loops once as only one manager is spawned
 	for (TActorIterator<ANoteSpawnManager> spawnIt(GetWorld()); spawnIt; ++spawnIt)
 	{
 		
@@ -603,8 +604,8 @@ ANoteSpawnManager* ARhythmGameModeBase::findNoteSpawnManager()
 	return nullptr;
 }
 
-//makes iterator that loops through cameras and creates a pointer to the current camera
-//only loops once as only one camera is spawned
+//Loops through cameras and creates a pointer to the current camera
+//Only loops once as only one camera is spawned
 ACameraActor* ARhythmGameModeBase::findCamera()
 {
 	for (TActorIterator<ACameraActor> cameraIt(GetWorld()); cameraIt; ++cameraIt)
